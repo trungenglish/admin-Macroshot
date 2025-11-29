@@ -84,14 +84,14 @@ import {
     ],
     curProfile: {
       src: 'https://randomuser.me/api/portraits/men/47.jpg',
-      name: 'Salvador Pearson',
-      email: 'salvador.pearson@example.com',
+      name: 'To rung',
+      email: 'nutripal@gmail.com',
     },
     allProfiles: [
       {
         src: 'https://randomuser.me/api/portraits/men/47.jpg',
-        name: 'Salvador Pearson',
-        email: 'salvador.pearson@example.com',
+        name: 'To rung',
+        email: 'nutripal@gmail.com',
       },
       {
         src: 'https://randomuser.me/api/portraits/women/43.jpg',
