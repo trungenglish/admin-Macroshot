@@ -1,73 +1,180 @@
-# React + TypeScript + Vite
+# NutriPal Admin
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Admin dashboard cho ứng dụng NutriPal - Hệ thống quản lý dinh dưỡng thông minh.
 
-Currently, two official plugins are available:
+## 📋 Mô tả
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+NutriPal Admin là giao diện quản trị cho phép quản lý người dùng, thực phẩm, phân tích dữ liệu và các tính năng khác của hệ sinh thái NutriPal.
 
-## React Compiler
+## 🛠️ Công nghệ sử dụng
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Vite 7** - Build tool & dev server
+- **Tailwind CSS 4** - Utility-first CSS framework
+- **Radix UI** - Headless UI components
+- **Lucide React** - Icon library
+- **React Avatar** - Avatar component
+- **pnpm** - Package manager
 
-## Expanding the ESLint configuration
+## 📦 Yêu cầu hệ thống
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Node.js**: >= 18.0.0
+- **pnpm**: >= 8.0.0
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🚀 Cài đặt
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 1. Cài đặt pnpm (nếu chưa có)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install -g pnpm
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Hoặc trên macOS/Linux:
+```bash
+curl -fsSL https://get.pnpm.io/install.sh | sh -
 ```
+
+### 2. Clone repository và di chuyển vào thư mục
+
+```bash
+cd nutripal-admin
+```
+
+### 3. Cài đặt dependencies
+
+```bash
+pnpm install
+```
+
+## 🏃 Chạy dự án
+
+### Development mode
+
+Chạy dev server với Hot Module Replacement (HMR):
+
+```bash
+pnpm dev
+```
+
+Dự án sẽ chạy tại: `http://localhost:5173`
+
+### Build cho production
+
+Tạo build tối ưu cho production:
+
+```bash
+pnpm build
+```
+
+Output sẽ được tạo trong thư mục `dist/`
+
+### Preview production build
+
+Xem preview của production build:
+
+```bash
+pnpm preview
+```
+
+### Lint code
+
+Kiểm tra lỗi code:
+
+```bash
+pnpm lint
+```
+
+## 📁 Cấu trúc thư mục
+
+```
+nutripal-admin/
+├── public/                 # Static files
+├── src/
+│   ├── assets/            # Assets (images, icons, logo)
+│   │   └── Logo.tsx
+│   ├── components/        # React components
+│   │   ├── ui/           # UI components (buttons, dropdown, sidebar, etc.)
+│   │   ├── AppSidebar.tsx
+│   │   ├── UserMenu.tsx
+│   │   └── ThemeProvider.tsx
+│   ├── constants/        # Constants và configuration
+│   │   └── index.ts
+│   ├── hooks/            # Custom React hooks
+│   │   └── use-mobile.ts
+│   ├── lib/              # Utility functions
+│   │   └── utils.ts
+│   ├── App.tsx           # Root component
+│   ├── main.tsx          # Entry point
+│   └── index.css         # Global styles
+├── index.html            # HTML template
+├── package.json
+├── pnpm-lock.yaml
+├── tsconfig.json         # TypeScript config
+└── vite.config.ts        # Vite config
+```
+
+## 📝 Scripts có sẵn
+
+| Script | Mô tả |
+|--------|-------|
+| `pnpm dev` | Chạy development server |
+| `pnpm build` | Build cho production |
+| `pnpm preview` | Preview production build |
+| `pnpm lint` | Chạy ESLint để kiểm tra code |
+
+## 🔧 Cấu hình
+
+### Path Alias
+
+Dự án sử dụng path alias `@` để tham chiếu đến thư mục `src/`:
+
+```typescript
+import { Button } from '@/components/ui/button'
+import { APP_SIDEBAR } from '@/constants'
+```
+
+### Environment Variables
+
+Tạo file `.env` trong thư mục root nếu cần cấu hình biến môi trường:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+```
+
+## 🐛 Troubleshooting
+
+### Lỗi port đã được sử dụng
+
+Nếu port 5173 đã được sử dụng, Vite sẽ tự động tìm port khác hoặc bạn có thể chỉ định port:
+
+```bash
+pnpm dev -- --port 3000
+```
+
+### Lỗi khi cài đặt dependencies
+
+Xóa `node_modules` và `pnpm-lock.yaml`, sau đó cài lại:
+
+```bash
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
+```
+
+## 📚 Tài liệu tham khảo
+
+- [React Documentation](https://react.dev)
+- [Vite Documentation](https://vite.dev)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Radix UI](https://www.radix-ui.com)
+- [TypeScript](https://www.typescriptlang.org)
+
+## 👥 Phát triển
+
+Dự án này là phần của hệ sinh thái NutriPal. Xem thêm:
+
+- [NutriPal Mobile App](../nutripal/) - Ứng dụng mobile Flutter
+
+## 📄 License
+
+Private project - All rights reserved
