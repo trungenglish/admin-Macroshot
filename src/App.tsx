@@ -7,6 +7,7 @@ import { DashboardCard } from '@/components/DashboardCard';
 import { AppBarChart } from '@/components/AppBarChart';
 import { AppRadialChart } from '@/components/AppRadialChart';
 import { TrendingUpIcon } from 'lucide-react';
+import { DashBoardTable } from '@/components/DashboardTable';
 
 export const App = () => {
   return (

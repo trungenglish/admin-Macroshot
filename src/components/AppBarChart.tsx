@@ -4,6 +4,7 @@ import {
   ChartLegend,
   ChartTooltip,
   ChartTooltipContent,
+  type ChartConfig,
 } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { VENDOR_BREAKDOWN } from '@/constants';
@@ -12,7 +13,7 @@ const chartConfig = {
   eu: { label: 'EU', color: 'var(--chart-1)' },
   us: { label: 'US', color: 'var(--chart-2)' },
   asia: { label: 'Asia', color: 'var(--chart-3)' },
-};
+} satisfies ChartConfig;
 
 export const AppBarChart = () => {
   const isMobile = useIsMobile();
