@@ -28,6 +28,8 @@ export const AppBarChart = () => {
         data={VENDOR_BREAKDOWN}
         barSize={isMobile ? 12 : 30}
       >
+        <ChartTooltip content={<ChartTooltipContent />} />
+
         <CartesianGrid vertical={false} />
 
         <Bar
@@ -63,8 +65,6 @@ export const AppBarChart = () => {
             axisLine={false}
           />
         )}
-
-        <ChartTooltip content={<ChartTooltipContent />} />
 
         {!isMobile && (
           <ChartLegend

@@ -34,7 +34,7 @@ export const DashboardCard = ({
     <Card className='bg-background'>
       <CardHeader className='border-b flex justify-between'>
         <div>
-          <CardTitle>{title}</CardTitle>
+          <CardTitle className='text-lg'>{title}</CardTitle>
 
           <CardDescription>{description}</CardDescription>
         </div>

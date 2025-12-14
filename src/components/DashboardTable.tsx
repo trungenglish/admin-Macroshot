@@ -2,6 +2,8 @@ import { Button } from '@/components/ui/button';
 import { PlusIcon, UploadCloudIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { DataTable } from '@/components/DataTable';
+import { columns } from '@/components/Columns';
+import { VENDOR_MOVEMENTS } from '@/constants';
 
 export const DashBoardTable = () => {
   return (
@@ -26,7 +28,7 @@ export const DashBoardTable = () => {
 
         <div className='flex items-center gap-3'>
           <Button variant='outline'>
-            <UploadCloudIcon/>
+            <UploadCloudIcon />
             <span>Import</span>
           </Button>
 
@@ -37,7 +39,10 @@ export const DashBoardTable = () => {
         </div>
       </div>
 
-      <DataTable />
+      <DataTable
+        columns={columns}
+        data={VENDOR_MOVEMENTS}
+      />
     </div>
   );
 };
