@@ -26,7 +26,7 @@ type Props = {
 export const DashboardCard = ({
   title,
   description,
-  text,
+  // text,
   buttonText,
   children,
 }: React.PropsWithChildren<Props>) => {
