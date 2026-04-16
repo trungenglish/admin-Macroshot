@@ -1,10 +1,10 @@
-# NutriPal Admin
+# MacroShot Admin
 
-Admin dashboard cho ứng dụng NutriPal - Hệ thống quản lý dinh dưỡng thông minh.
+Admin dashboard cho ứng dụng MacroShot - Hệ thống quản lý dinh dưỡng thông minh.
 
 ## 📋 Mô tả
 
-NutriPal Admin là giao diện quản trị cho phép quản lý người dùng, thực phẩm, phân tích dữ liệu và các tính năng khác của hệ sinh thái NutriPal.
+MacroShot Admin là giao diện quản trị cho phép quản lý người dùng, thực phẩm, phân tích dữ liệu và các tính năng khác của hệ sinh thái MacroShot.
 
 ## 🛠️ Công nghệ sử dụng
 
@@ -38,7 +38,7 @@ curl -fsSL https://get.pnpm.io/install.sh | sh -
 ### 2. Clone repository và di chuyển vào thư mục
 
 ```bash
-cd nutripal-admin
+cd macroshot-admin
 ```
 
 ### 3. Cài đặt dependencies
@@ -88,7 +88,7 @@ pnpm lint
 ## 📁 Cấu trúc thư mục
 
 ```
-nutripal-admin/
+macroshot-admin/
 ├── public/                 # Static files
 ├── src/
 │   ├── assets/            # Assets (images, icons, logo)
@@ -171,9 +171,9 @@ pnpm install
 
 ## 👥 Phát triển
 
-Dự án này là phần của hệ sinh thái NutriPal. Xem thêm:
+Dự án này là phần của hệ sinh thái MacroShot. Xem thêm:
 
-- [NutriPal Mobile App](../nutripal/) - Ứng dụng mobile Flutter
+- [MacroShot Mobile App](../macroshot/) - Ứng dụng mobile Flutter
 
 ## 📄 License
 

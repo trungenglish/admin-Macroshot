@@ -85,13 +85,13 @@ import {
     curProfile: {
       src: 'https://randomuser.me/api/portraits/men/47.jpg',
       name: 'To rung',
-      email: 'nutripal@gmail.com',
+      email: 'macroshot@gmail.com',
     },
     allProfiles: [
       {
         src: 'https://randomuser.me/api/portraits/men/47.jpg',
         name: 'To rung',
-        email: 'nutripal@gmail.com',
+        email: 'macroshot@gmail.com',
       },
       {
         src: 'https://randomuser.me/api/portraits/women/43.jpg',

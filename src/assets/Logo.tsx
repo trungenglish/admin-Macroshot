@@ -46,7 +46,7 @@ export const Logo = ({
           fontFamily="system-ui, -apple-system, sans-serif" // Font chữ (bạn có thể thay bằng font của app)
           style={{ letterSpacing: '-0.02em' }} // Khoảng cách chữ cho đẹp hơn
         >
-          Nutripal
+          Macroshot
         </text>
       </svg>
     );
