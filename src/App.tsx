@@ -12,7 +12,7 @@ import { DashBoardTable } from '@/components/DashboardTable';
 export const App = () => {
   return (
     <ThemeProvider defaultTheme='dark'>
-      <SidebarProvider open={false}>
+      <SidebarProvider>
         <AppSideBar />
 
         <SidebarInset>

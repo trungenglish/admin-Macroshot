@@ -14,21 +14,38 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { PlusIcon } from 'lucide-react';
+import { PlusIcon, ChevronsUpDownIcon } from 'lucide-react';
+import { SidebarMenuButton } from '@/components/ui/sidebar';
 
 export const UserMenu = () => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
-        <div className='relative'>
-          <Avatar
-            src={APP_SIDEBAR.curProfile.src}
-            size='32px'
-            round='8px'
-          />
+      <DropdownMenuTrigger asChild>
+        <SidebarMenuButton
+          size='lg'
+          className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
+        >
+          <div className='relative shrink-0'>
+            <Avatar
+              src={APP_SIDEBAR.curProfile.src}
+              size='32px'
+              round='8px'
+            />
 
-          <div className='absolute bottom-0 right-0 size-2 rounded-full bg-emerald-500 dark:bg-emerald-400 ring-sidebar ring-1'></div>
-        </div>
+            <div className='absolute bottom-0 right-0 size-2 rounded-full bg-emerald-500 dark:bg-emerald-400 ring-sidebar ring-1'></div>
+          </div>
+
+          <div className='grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden'>
+            <span className='truncate font-semibold'>
+              {APP_SIDEBAR.curProfile.name}
+            </span>
+            <span className='truncate text-xs text-muted-foreground'>
+              {APP_SIDEBAR.curProfile.email}
+            </span>
+          </div>
+          
+          <ChevronsUpDownIcon className='ml-auto size-4 shrink-0 group-data-[collapsible=icon]:hidden' />
+        </SidebarMenuButton>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent

@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarGroupContent,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
 
 import { useSidebar } from '@/components/ui/sidebar';
@@ -17,14 +18,11 @@ import { useSidebar } from '@/components/ui/sidebar';
 import { LogOutIcon } from 'lucide-react';
 import { Logo } from '@/assets/Logo';
 import { APP_SIDEBAR } from '@/constants';
-import { useEffect } from 'react';
 import { Button } from './ui/button';
 import { UserMenu } from '@/components/UserMenu';
 
 export const AppSideBar = () => {
-  const { isMobile, toggleSidebar } = useSidebar();
-
-  useEffect(() => toggleSidebar(), [toggleSidebar]);
+  const { isMobile, state } = useSidebar();
 
   return (
     <Sidebar
@@ -34,8 +32,11 @@ export const AppSideBar = () => {
       {/* Sidebar Header */}
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem className='px-0.5 max-lg:p-2'>
-            <Logo variant={isMobile ? 'default' : 'icon'} />
+          <SidebarMenuItem className='flex items-center justify-between px-1 h-10'>
+            <div className='group-data-[collapsible=icon]:hidden flex-1'>
+              <Logo variant='default' size={24} />
+            </div>
+            <SidebarTrigger />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

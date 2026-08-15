@@ -13,6 +13,9 @@ import {
     TrashIcon,
     UserIcon,
     UsersIcon,
+    UtensilsIcon,
+    CarrotIcon,
+    TestTubeIcon,
   } from 'lucide-react';
   
   /**
@@ -40,34 +43,29 @@ import {
   export const APP_SIDEBAR = {
     primaryNav: [
       {
-        title: 'Home',
-        url: '#',
-        Icon: HomeIcon,
-      },
-      {
         title: 'Dashboard',
         url: '#',
         Icon: LayoutDashboardIcon,
       },
       {
-        title: 'Project',
-        url: '#',
-        Icon: FolderKanbanIcon,
-      },
-      {
-        title: 'Tasks',
-        url: '#',
-        Icon: CopyCheckIcon,
-      },
-      {
-        title: 'Reporting',
-        url: '#',
-        Icon: ChartPieIcon,
-      },
-      {
         title: 'Users',
         url: '#',
         Icon: UsersIcon,
+      },
+      {
+        title: 'Recipes',
+        url: '#',
+        Icon: UtensilsIcon,
+      },
+      {
+        title: 'Ingredients',
+        url: '#',
+        Icon: CarrotIcon,
+      },
+      {
+        title: 'Nutrients',
+        url: '#',
+        Icon: TestTubeIcon,
       },
     ],
     secondaryNav: [

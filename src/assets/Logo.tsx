@@ -19,7 +19,7 @@ export const Logo = ({
       <svg
         data-logo='logo'
         xmlns='http://www.w3.org/2000/svg'
-        viewBox='0 0 213 42' // Giữ nguyên khung hình
+        viewBox='0 0 280 42' // Tăng width để không bị che chữ
         height={size}
         // width cần tự động co giãn theo tỉ lệ, hoặc bạn có thể set cứng nếu muốn
         style={{ width: 'auto' }} 
