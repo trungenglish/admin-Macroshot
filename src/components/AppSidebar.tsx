@@ -22,7 +22,7 @@ import { Button } from './ui/button';
 import { UserMenu } from '@/components/UserMenu';
 
 export const AppSideBar = () => {
-  const { isMobile, state } = useSidebar();
+  const { isMobile } = useSidebar();
 
   return (
     <Sidebar

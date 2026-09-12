@@ -1,10 +1,6 @@
 import {
     BookOpenIcon,
-    ChartPieIcon,
-    CopyCheckIcon,
     CopyIcon,
-    FolderKanbanIcon,
-    HomeIcon,
     LayoutDashboardIcon,
     LifeBuoyIcon,
     LogOutIcon,
