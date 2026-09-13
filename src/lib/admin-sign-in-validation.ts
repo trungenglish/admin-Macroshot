@@ -1,5 +1,5 @@
 export type AdminSignInAttempt = {
-  email: string;
+  username: string;
   password: string;
 };
 
@@ -7,18 +7,15 @@ export type AdminSignInErrors = Partial<
   Record<keyof AdminSignInAttempt, string>
 >;
 
-function validateEmail(email: string) {
-  if (email.trim().length === 0) {
-    return 'Enter your email address.';
+function validateUsername(username: string) {
+  if (username.trim().length === 0) {
+    return 'Enter your username.';
   }
 
-  const atIndex = email.indexOf('@');
-  const hasOneAtSign = atIndex > 0 && atIndex === email.lastIndexOf('@');
-  const hasDomain = atIndex < email.length - 1;
-  const containsWhitespace = /\s/.test(email);
+  const containsWhitespace = /\s/.test(username);
 
-  if (!hasOneAtSign || !hasDomain || containsWhitespace) {
-    return 'Enter a valid email address.';
+  if (containsWhitespace) {
+    return 'Username cannot contain spaces.';
   }
 
   return undefined;
@@ -33,15 +30,15 @@ function validatePassword(password: string) {
 }
 
 export function validateAdminSignIn({
-  email,
+  username,
   password,
 }: AdminSignInAttempt): AdminSignInErrors {
   const errors: AdminSignInErrors = {};
-  const emailError = validateEmail(email);
+  const usernameError = validateUsername(username);
   const passwordError = validatePassword(password);
 
-  if (emailError) {
-    errors.email = emailError;
+  if (usernameError) {
+    errors.username = usernameError;
   }
 
   if (passwordError) {

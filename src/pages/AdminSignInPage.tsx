@@ -24,7 +24,7 @@ import {
 } from '@/lib/admin-sign-in-validation';
 
 export function AdminSignInPage() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<AdminSignInErrors>({});
 
@@ -43,7 +43,7 @@ export function AdminSignInPage() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const attempt: AdminSignInAttempt = { email, password };
+    const attempt: AdminSignInAttempt = { username, password };
     const nextErrors = validateAdminSignIn(attempt);
 
     setErrors(nextErrors);
@@ -90,28 +90,30 @@ export function AdminSignInPage() {
             onSubmit={handleSubmit}
           >
             <FieldGroup className='gap-5'>
-              <Field data-invalid={Boolean(errors.email)}>
-                <FieldLabel htmlFor='admin-email'>Email</FieldLabel>
+              <Field data-invalid={Boolean(errors.username)}>
+                <FieldLabel htmlFor='admin-username'>Username</FieldLabel>
                 <Input
                   aria-describedby={
-                    errors.email ? 'admin-email-error' : undefined
+                    errors.username ? 'admin-username-error' : undefined
                   }
-                  aria-invalid={Boolean(errors.email)}
-                  id='admin-email'
-                  name='email'
-                  type='email'
+                  aria-invalid={Boolean(errors.username)}
+                  id='admin-username'
+                  name='username'
+                  type='text'
                   autoCapitalize='none'
-                  autoComplete='email'
-                  placeholder='admin@nutripal.com'
+                  autoComplete='username'
+                  placeholder='admin'
                   spellCheck={false}
-                  value={email}
+                  value={username}
                   onChange={(event) => {
-                    setEmail(event.target.value);
-                    clearFieldError('email');
+                    setUsername(event.target.value);
+                    clearFieldError('username');
                   }}
                 />
-                {errors.email ? (
-                  <FieldError id='admin-email-error'>{errors.email}</FieldError>
+                {errors.username ? (
+                  <FieldError id='admin-username-error'>
+                    {errors.username}
+                  </FieldError>
                 ) : null}
               </Field>
 
