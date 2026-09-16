@@ -29,7 +29,7 @@ export function NutrientRowActions({
 }: NutrientRowActionsProps) {
   const { statusAction, canDelete } = getNutrientActionPolicy(nutrient);
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           variant='ghost'
