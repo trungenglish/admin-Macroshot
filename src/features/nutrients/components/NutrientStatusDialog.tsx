@@ -1,5 +1,3 @@
-import { useRef, useState } from 'react';
-
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   AlertDialog,
@@ -12,6 +10,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Spinner } from '@/components/ui/spinner';
+import { useNutrientConfirmation } from '../hooks/use-nutrient-confirmation';
 import { getNutrientActionPolicy } from '../nutrient-policy';
 import type { Nutrient } from '../nutrient.types';
 
@@ -44,49 +43,35 @@ function StatusConfirmation({
   onOpenChange,
   onConfirm,
 }: SelectedNutrientDialogProps & { nutrient: Nutrient }) {
-  const submitting = useRef(false);
-  const [localPending, setLocalPending] = useState(false);
-  const [requestError, setRequestError] = useState<string | null>(null);
-  const busy = pending || localPending;
+  const { busy, requestError, isPending, confirm } = useNutrientConfirmation({
+    nutrient,
+    open,
+    pending,
+    onOpenChange,
+    onConfirm,
+  });
   const action =
     getNutrientActionPolicy(nutrient).statusAction === 'deactivate'
       ? 'Deactivate'
       : 'Reactivate';
 
-  async function confirm() {
-    if (!open || pending || submitting.current || !onConfirm) return;
-    submitting.current = true;
-    setLocalPending(true);
-    setRequestError(null);
-    try {
-      await onConfirm(nutrient);
-      onOpenChange(false);
-    } catch (error) {
-      setRequestError(
-        (error as { message?: string })?.message ??
-          'Unable to complete the request. Please try again.',
-      );
-    } finally {
-      submitting.current = false;
-      setLocalPending(false);
-    }
-  }
-
   return (
     <AlertDialog
       open={open}
       onOpenChange={(nextOpen) => {
-        if (!busy && !submitting.current) onOpenChange(nextOpen);
+        if (!isPending()) onOpenChange(nextOpen);
       }}
     >
       <AlertDialogContent
         aria-busy={busy}
         onEscapeKeyDown={(event) => {
-          if (busy || submitting.current) event.preventDefault();
+          if (isPending()) event.preventDefault();
         }}
       >
         <AlertDialogHeader>
-          <AlertDialogTitle>{action} {nutrient.name}?</AlertDialogTitle>
+          <AlertDialogTitle>
+            {action} {nutrient.name}?
+          </AlertDialogTitle>
           <AlertDialogDescription>
             {nutrient.isActive
               ? 'Existing ingredient data remains unchanged. While this nutrient is inactive, new associations cannot select it.'
@@ -107,7 +92,12 @@ function StatusConfirmation({
               void confirm();
             }}
           >
-            {busy && <Spinner aria-hidden='true' data-icon='inline-start' />}
+            {busy && (
+              <Spinner
+                aria-hidden='true'
+                data-icon='inline-start'
+              />
+            )}
             {action}
           </AlertDialogAction>
         </AlertDialogFooter>

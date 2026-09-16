@@ -1,5 +1,3 @@
-import { useRef, useState } from 'react';
-
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   AlertDialog,
@@ -12,6 +10,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Spinner } from '@/components/ui/spinner';
+import { useNutrientConfirmation } from '../hooks/use-nutrient-confirmation';
 import { getNutrientActionPolicy } from '../nutrient-policy';
 import type { Nutrient } from '../nutrient.types';
 import type { SelectedNutrientDialogProps } from './NutrientStatusDialog';
@@ -21,7 +20,8 @@ export function DeleteNutrientDialog(props: SelectedNutrientDialogProps) {
     !props.open ||
     !props.nutrient ||
     !getNutrientActionPolicy(props.nutrient).canDelete
-  ) return null;
+  )
+    return null;
   return (
     <DeleteConfirmation
       key={props.nutrient.id}
@@ -39,53 +39,35 @@ function DeleteConfirmation({
   onOpenChange,
   onConfirm,
 }: SelectedNutrientDialogProps & { nutrient: Nutrient }) {
-  const submitting = useRef(false);
-  const [localPending, setLocalPending] = useState(false);
-  const [requestError, setRequestError] = useState<string | null>(null);
-  const busy = pending || localPending;
-
-  async function confirm() {
-    if (
-      !open ||
-      pending ||
-      submitting.current ||
-      !onConfirm ||
-      !getNutrientActionPolicy(nutrient).canDelete
-    ) return;
-    submitting.current = true;
-    setLocalPending(true);
-    setRequestError(null);
-    try {
-      await onConfirm(nutrient);
-      onOpenChange(false);
-    } catch (error) {
-      setRequestError(
-        (error as { message?: string })?.message ??
-          'Unable to complete the request. Please try again.',
-      );
-    } finally {
-      submitting.current = false;
-      setLocalPending(false);
-    }
-  }
+  const { busy, requestError, isPending, confirm } = useNutrientConfirmation({
+    nutrient,
+    open,
+    pending,
+    canConfirm: getNutrientActionPolicy(nutrient).canDelete,
+    onOpenChange,
+    onConfirm,
+  });
 
   return (
     <AlertDialog
       open={open}
       onOpenChange={(nextOpen) => {
-        if (!busy && !submitting.current) onOpenChange(nextOpen);
+        if (!isPending()) onOpenChange(nextOpen);
       }}
     >
       <AlertDialogContent
         aria-busy={busy}
         onEscapeKeyDown={(event) => {
-          if (busy || submitting.current) event.preventDefault();
+          if (isPending()) event.preventDefault();
         }}
       >
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {nutrient.name} permanently?</AlertDialogTitle>
+          <AlertDialogTitle>
+            Delete {nutrient.name} permanently?
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            This nutrient is not used by any ingredients. Permanent deletion cannot be undone.
+            This nutrient is not used by any ingredients. Permanent deletion
+            cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         {(errorMessage || requestError) && (
@@ -103,7 +85,12 @@ function DeleteConfirmation({
               void confirm();
             }}
           >
-            {busy && <Spinner aria-hidden='true' data-icon='inline-start' />}
+            {busy && (
+              <Spinner
+                aria-hidden='true'
+                data-icon='inline-start'
+              />
+            )}
             Delete permanently
           </AlertDialogAction>
         </AlertDialogFooter>
