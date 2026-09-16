@@ -87,6 +87,13 @@ export function NutrientTable({
           ))}
         </TableHeader>
         <TableBody>
+          {data.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={columns.length}>
+                No nutrients on this page.
+              </TableCell>
+            </TableRow>
+          )}
           {table.getRowModel().rows.map((row) => (
             <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (

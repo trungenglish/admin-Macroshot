@@ -578,4 +578,68 @@ describe('NutrientsPage', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(deleteNutrient).not.toHaveBeenCalled();
   });
+
+  it('retains pagination recovery after deleting the last item on page two while earlier records remain', async () => {
+    const secondPage = { items: [zinc], total: 11, page: 2, pageSize: 10 };
+    hooks.useGetNutrientsQuery.mockReturnValue(
+      queryState({ data: secondPage, currentData: secondPage }),
+    );
+    const router = renderPage('/admin/nutrients?page=2');
+    await rowAction('Zinc', 'Delete');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Delete permanently' }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument(),
+    );
+    expect(deleteNutrient).toHaveBeenCalledWith(2);
+    expect(hooks.success).toHaveBeenCalledWith('Nutrient deleted.');
+
+    const refreshed = { items: [], total: 10, page: 2, pageSize: 10 };
+    hooks.useGetNutrientsQuery.mockReturnValue(
+      queryState({ data: refreshed, currentData: refreshed }),
+    );
+    await act(async () => {
+      await router.navigate('/admin/nutrients?page=2');
+    });
+    expect(screen.getByText('10 nutrients')).toBeInTheDocument();
+    expect(screen.queryByText('No nutrients yet')).not.toBeInTheDocument();
+    expect(screen.queryByText('No matching nutrients')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('cell', { name: 'No nutrients on this page.' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', { name: 'Rows per page' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    await userEvent.click(screen.getByRole('button', { name: 'Previous' }));
+    expect(hooks.useGetNutrientsQuery).toHaveBeenLastCalledWith({
+      page: 1,
+      pageSize: 10,
+      search: '',
+    });
+    expect(screen.getByTestId('location-search')).not.toHaveTextContent(
+      'page=2',
+    );
+  });
+
+  it('retains pagination rather than no-results when the filtered requested page is empty but matching records remain', async () => {
+    const emptyPage = { items: [], total: 10, page: 2, pageSize: 10 };
+    hooks.useGetNutrientsQuery.mockReturnValue(
+      queryState({ data: emptyPage, currentData: emptyPage }),
+    );
+    renderPage('/admin/nutrients?page=2&unit=mg&isActive=false');
+    expect(screen.queryByText('No matching nutrients')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Clear filters' }),
+    ).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Previous' }));
+    expect(hooks.useGetNutrientsQuery).toHaveBeenLastCalledWith({
+      page: 1,
+      pageSize: 10,
+      search: '',
+      unit: 'mg',
+      isActive: false,
+    });
+  });
 });

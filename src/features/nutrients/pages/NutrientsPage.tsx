@@ -330,7 +330,7 @@ export function NutrientsPage() {
                   Refreshing nutrients
                 </div>
               )}
-              {result.items.length > 0 ? (
+              {result.items.length > 0 || result.total > 0 ? (
                 <NutrientTable
                   data={result.items}
                   total={result.total}
