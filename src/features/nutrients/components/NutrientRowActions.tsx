@@ -36,7 +36,10 @@ export function NutrientRowActions({
           size='icon'
           aria-label={`Actions for ${nutrient.name}`}
         >
-          <MoreHorizontalIcon aria-hidden='true' data-icon='inline-start' />
+          <MoreHorizontalIcon
+            aria-hidden='true'
+            data-icon='inline-start'
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
@@ -62,7 +65,8 @@ export function NutrientRowActions({
           </DropdownMenuItem>
           {!canDelete && (
             <DropdownMenuLabel>
-              Used by {nutrient.ingredientCount} ingredients. Deactivate it instead.
+              Used by {nutrient.ingredientCount} ingredients. Deactivate it
+              instead.
             </DropdownMenuLabel>
           )}
         </DropdownMenuGroup>

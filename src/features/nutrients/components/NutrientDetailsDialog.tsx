@@ -56,7 +56,10 @@ export function NutrientDetailsDialog({
           </DialogDescription>
         </DialogHeader>
         {loading ? (
-          <div role='status' className='flex flex-col gap-3'>
+          <div
+            role='status'
+            className='flex flex-col gap-3'
+          >
             <span className='sr-only'>Loading nutrient details</span>
             <Skeleton className='h-6 w-3/4' />
             <Skeleton className='h-6 w-1/2' />
@@ -75,28 +78,46 @@ export function NutrientDetailsDialog({
                 disabled={isFetching || pending}
                 onClick={() => void refetch()}
               >
-                {isFetching && <Spinner aria-hidden='true' data-icon='inline-start' />}
+                {isFetching && (
+                  <Spinner
+                    aria-hidden='true'
+                    data-icon='inline-start'
+                  />
+                )}
                 Retry
               </Button>
             </AlertDescription>
           </Alert>
-        ) : details && (
-          <dl className='grid grid-cols-2 gap-3'>
-            <dt>Name</dt><dd>{details.name}</dd>
-            <dt>Unit</dt><dd>{details.unit}</dd>
-            <dt>Status</dt>
-            <dd>
-              <Badge variant={details.isActive ? 'default' : 'secondary'}>
-                {details.isActive ? 'Active' : 'Inactive'}
-              </Badge>
-            </dd>
-            <dt>Ingredient usage count</dt><dd>{details.ingredientCount}</dd>
-          </dl>
+        ) : (
+          details && (
+            <dl className='grid grid-cols-2 gap-3'>
+              <dt>Name</dt>
+              <dd>{details.name}</dd>
+              <dt>Unit</dt>
+              <dd>{details.unit}</dd>
+              <dt>Status</dt>
+              <dd>
+                <Badge variant={details.isActive ? 'default' : 'secondary'}>
+                  {details.isActive ? 'Active' : 'Inactive'}
+                </Badge>
+              </dd>
+              <dt>Ingredient usage count</dt>
+              <dd>{details.ingredientCount}</dd>
+            </dl>
+          )
         )}
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant='outline' disabled={pending}>
-              {pending && <Spinner aria-hidden='true' data-icon='inline-start' />}
+            <Button
+              variant='outline'
+              disabled={pending}
+            >
+              {pending && (
+                <Spinner
+                  aria-hidden='true'
+                  data-icon='inline-start'
+                />
+              )}
               Close
             </Button>
           </DialogClose>
