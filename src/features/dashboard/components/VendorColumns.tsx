@@ -5,7 +5,11 @@ import { ArrowDownIcon, ArrowUpIcon, Edit2Icon, Trash2Icon } from 'lucide-react'
 import Avatar from 'react-avatar';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 type VendorCategory =
   | 'Active'

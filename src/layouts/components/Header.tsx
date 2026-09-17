@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Logo } from '@/assets/Logo';
 import { MenuIcon } from 'lucide-react';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { ThemeToggle } from '@/shared/theme/ThemeToggle';
 
 export const Header = () => {
   const { toggleSidebar } = useSidebar();

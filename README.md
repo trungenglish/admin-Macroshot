@@ -91,22 +91,21 @@ pnpm lint
 macroshot-admin/
 ├── public/                 # Static files
 ├── src/
+│   ├── app/                # App, router, providers và Redux store
 │   ├── assets/            # Assets (images, icons, logo)
 │   │   └── Logo.tsx
-│   ├── components/        # React components
-│   │   ├── ui/           # UI components (buttons, dropdown, sidebar, etc.)
-│   │   ├── AppSidebar.tsx
-│   │   ├── UserMenu.tsx
-│   │   └── ThemeProvider.tsx
-│   ├── constants/        # Constants và configuration
-│   │   └── index.ts
-│   ├── hooks/            # Custom React hooks
-│   │   └── use-mobile.ts
-│   ├── lib/              # Utility functions
-│   │   └── utils.ts
-│   ├── App.tsx           # Root component
-│   ├── main.tsx          # Entry point
-│   └── index.css         # Global styles
+│   ├── components/
+│   │   └── ui/            # Các primitive shadcn
+│   ├── features/          # Module nghiệp vụ theo từng feature
+│   │   ├── auth/
+│   │   └── dashboard/
+│   ├── layouts/           # Auth layout và Admin shell
+│   ├── shared/            # API, component và theme dùng chung
+│   ├── test/              # Thiết lập test toàn cục
+│   ├── hooks/             # Hook dùng chung hiện có
+│   ├── lib/               # Utility cho shadcn
+│   ├── main.tsx           # Entry point
+│   └── index.css          # Global styles
 ├── index.html            # HTML template
 ├── package.json
 ├── pnpm-lock.yaml
@@ -131,7 +130,7 @@ Dự án sử dụng path alias `@` để tham chiếu đến thư mục `src/`:
 
 ```typescript
 import { Button } from '@/components/ui/button'
-import { APP_SIDEBAR } from '@/constants'
+import { APP_SIDEBAR } from '@/layouts/navigation'
 ```
 
 ### Environment Variables

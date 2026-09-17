@@ -1,6 +1,6 @@
 import Avatar from 'react-avatar';
 
-import { APP_SIDEBAR } from '@/constants';
+import { APP_SIDEBAR } from '@/layouts/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -1,4 +1,4 @@
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { ThemeToggle } from '@/shared/theme/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { DownloadIcon, SearchIcon, Settings2Icon } from 'lucide-react';
 

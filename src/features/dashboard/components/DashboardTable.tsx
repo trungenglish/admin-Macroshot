@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { PlusIcon, UploadCloudIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { DataTable } from '@/components/DataTable';
-import { columns } from '@/components/Columns';
-import { VENDOR_MOVEMENTS } from '@/constants';
+import { DataTable } from '@/shared/components/DataTable';
+import { columns } from '@/features/dashboard/components/VendorColumns';
+import { VENDOR_MOVEMENTS } from '@/features/dashboard/dashboard-data';
 
 export const DashBoardTable = () => {
   return (

@@ -7,7 +7,7 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { VENDOR_BREAKDOWN } from '@/constants';
+import { VENDOR_BREAKDOWN } from '@/features/dashboard/dashboard-data';
 
 const chartConfig = {
   eu: { label: 'EU', color: 'var(--chart-1)' },

@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { EllipsisVerticalIcon } from 'lucide-react';
-import { DASHBOARD_CARD_MENU } from '@/constants';
+import { DASHBOARD_CARD_MENU } from '@/features/dashboard/dashboard-data';
 import { Button } from '@/components/ui/button';
 
 type Props = {

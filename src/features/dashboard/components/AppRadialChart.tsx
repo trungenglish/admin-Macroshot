@@ -4,7 +4,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import { VENDOR_MONITORED } from '@/constants';
+import { VENDOR_MONITORED } from '@/features/dashboard/dashboard-data';
 import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from 'recharts';
 
 const chartConfig = {

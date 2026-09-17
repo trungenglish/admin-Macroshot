@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 
-import { AdminSignInBrand } from '@/components/admin-sign-in/AdminSignInBrand';
+import { AdminSignInBrand } from '@/features/auth/components/AdminSignInBrand';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -19,16 +19,27 @@ import {
 import { Input } from '@/components/ui/input';
 import {
   validateAdminSignIn,
-  type AdminSignInAttempt,
   type AdminSignInErrors,
-} from '@/lib/admin-sign-in-validation';
+} from '@/features/auth/auth.validation';
+import { useAppDispatch, useAppSelector } from '@/app/store-hooks';
+import {
+  clearAuthError,
+  loginAdmin,
+  selectAuthError,
+  selectAuthStatus,
+} from '@/features/auth/store/auth-slice';
+import type { AdminSignInCredentials } from '@/features/auth/auth.types';
 
 export function AdminSignInPage() {
+  const dispatch = useAppDispatch();
+  const authError = useAppSelector(selectAuthError);
+  const authStatus = useAppSelector(selectAuthStatus);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<AdminSignInErrors>({});
+  const isLoading = authStatus === 'loading';
 
-  function clearFieldError(field: keyof AdminSignInAttempt) {
+  function clearFieldError(field: keyof AdminSignInCredentials) {
     setErrors((currentErrors) => {
       if (!currentErrors[field]) {
         return currentErrors;
@@ -38,13 +49,21 @@ export function AdminSignInPage() {
       delete nextErrors[field];
       return nextErrors;
     });
+
+    if (authError) {
+      dispatch(clearAuthError());
+    }
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const attempt: AdminSignInAttempt = { username, password };
-    const nextErrors = validateAdminSignIn(attempt);
+    if (isLoading) {
+      return;
+    }
+
+    const credentials: AdminSignInCredentials = { username, password };
+    const nextErrors = validateAdminSignIn(credentials);
 
     setErrors(nextErrors);
 
@@ -52,7 +71,16 @@ export function AdminSignInPage() {
       return;
     }
 
-    console.log('NutriPal Admin mock sign-in', attempt);
+    if (authError) {
+      dispatch(clearAuthError());
+    }
+
+    try {
+      await dispatch(loginAdmin(credentials)).unwrap();
+      console.log('Login Successful');
+    } catch {
+      // The Redux error state is rendered below for a recoverable retry.
+    }
   }
 
   return (
@@ -84,6 +112,8 @@ export function AdminSignInPage() {
 
         <CardContent>
           <form
+            aria-busy={isLoading}
+            aria-describedby={authError ? 'admin-sign-in-error' : undefined}
             aria-labelledby='admin-sign-in-title'
             id='admin-sign-in-form'
             noValidate
@@ -142,24 +172,24 @@ export function AdminSignInPage() {
                 ) : null}
               </Field>
 
+              {authError ? (
+                <Field data-invalid>
+                  <FieldError id='admin-sign-in-error'>{authError}</FieldError>
+                </Field>
+              ) : null}
+
               <Button
                 className='w-full'
+                disabled={isLoading}
                 type='submit'
               >
-                Sign In
+                {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </FieldGroup>
           </form>
         </CardContent>
 
         <CardFooter className='flex-col gap-2'>
-          <Button
-            size='sm'
-            type='button'
-            variant='link'
-          >
-            Forgot Password?
-          </Button>
           <p className='text-muted-foreground text-center text-xs'>
             Authorized NutriPal administrators only
           </p>

@@ -1,4 +1,4 @@
-import { useTheme } from './ThemeProvider';
+import { useTheme } from '@/shared/theme/theme-context';
 import {
   DropdownMenu,
   DropdownMenuContent,

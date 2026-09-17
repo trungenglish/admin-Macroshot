@@ -1,10 +1,7 @@
-export type AdminSignInAttempt = {
-  username: string;
-  password: string;
-};
+import type { AdminSignInCredentials } from '@/features/auth/auth.types';
 
 export type AdminSignInErrors = Partial<
-  Record<keyof AdminSignInAttempt, string>
+  Record<keyof AdminSignInCredentials, string>
 >;
 
 function validateUsername(username: string) {
@@ -32,7 +29,7 @@ function validatePassword(password: string) {
 export function validateAdminSignIn({
   username,
   password,
-}: AdminSignInAttempt): AdminSignInErrors {
+}: AdminSignInCredentials): AdminSignInErrors {
   const errors: AdminSignInErrors = {};
   const usernameError = validateUsername(username);
   const passwordError = validatePassword(password);
