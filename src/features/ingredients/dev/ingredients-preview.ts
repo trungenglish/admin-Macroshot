@@ -106,21 +106,11 @@ function validateSave(
     if (!nutrient.isActive && (!prior || prior.amount !== amount)) {
       reject(422, 'Inactive nutrient links are read-only.', {
         nutrientLinks:
-          'Existing inactive links must be preserved unchanged; new inactive links cannot be added.',
+          'Retained inactive links must keep their original amount; new inactive links cannot be added.',
       });
     }
     return { nutrient: readNutrient(nutrient), amount };
   });
-  for (const prior of existing?.nutrientLinks ?? []) {
-    if (
-      !findNutrient(prior.nutrient.id).isActive &&
-      !links.some((link) => link.nutrient.id === prior.nutrient.id)
-    ) {
-      reject(422, 'Inactive nutrient links are read-only.', {
-        nutrientLinks: 'Existing inactive links must be preserved unchanged.',
-      });
-    }
-  }
   return {
     ...data,
     name: data.name.trim(),

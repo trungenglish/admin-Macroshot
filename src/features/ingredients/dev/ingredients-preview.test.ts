@@ -202,8 +202,23 @@ describe('preview ingredient policies and atomic saves', () => {
     );
   });
 
-  // Break caught: inactive links are dropped, edited, or newly added via forged active metadata.
-  it('preserves inactive links read-only and rejects new inactive links', async () => {
+  // Break caught: an existing inactive link cannot be deliberately removed on save.
+  it('allows saving without a historical inactive link and removes its usage', async () => {
+    const before = await preview.detail(2);
+    expect(before.nutrientLinks).toEqual([
+      expect.objectContaining({
+        nutrient: expect.objectContaining({ id: 13, isActive: false }),
+      }),
+    ]);
+    await expect(
+      preview.update(2, { ...input, nutrientLinks: [] }),
+    ).resolves.toMatchObject({ id: 2, nutrientLinks: [] });
+    expect((await preview.detail(2)).nutrientLinks).toEqual([]);
+    expect((await client.get('/nutrients/13')).data.ingredient_count).toBe(0);
+  });
+
+  // Break caught: retained inactive links are edited or newly added via forged active metadata.
+  it('preserves retained inactive links read-only and rejects new inactive links', async () => {
     const before = await preview.detail(2);
     const inactive = before.nutrientLinks!.find(
       (link) => !link.nutrient.isActive,
@@ -214,9 +229,6 @@ describe('preview ingredient policies and atomic saves', () => {
       nutrientLinks: before.nutrientLinks!,
     });
     expect(updated.nutrientLinks).toContainEqual(inactive);
-    await expect(
-      preview.update(2, { ...input, nutrientLinks: [] }),
-    ).rejects.toMatchObject({ status: 422 });
     await expect(
       preview.update(2, {
         ...input,
