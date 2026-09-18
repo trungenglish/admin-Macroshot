@@ -1,6 +1,7 @@
 import { configureStore, type Action } from '@reduxjs/toolkit';
 
 import authReducer, { loginAdmin } from '@/features/auth/store/auth-slice';
+import { ingredientsApi } from '@/features/ingredients/api/ingredients-api';
 import { nutrientsApi } from '@/features/nutrients/api/nutrients-api';
 
 const REDACTED_PASSWORD = '[REDACTED]';
@@ -39,9 +40,13 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     [nutrientsApi.reducerPath]: nutrientsApi.reducer,
+    [ingredientsApi.reducerPath]: ingredientsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(nutrientsApi.middleware),
+    getDefaultMiddleware().concat(
+      nutrientsApi.middleware,
+      ingredientsApi.middleware,
+    ),
   devTools: import.meta.env.DEV
     ? { actionSanitizer: sanitizeDevToolsAction }
     : false,
