@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "dev:ingredients-preview": "vite --mode ingredients-preview",
+    "dev:nutrients-preview": "vite --mode nutrients-preview",
+    "dev:admin-preview": "vite --mode admin-preview",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

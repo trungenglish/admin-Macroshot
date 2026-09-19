@@ -19,7 +19,8 @@ export interface IngredientTransport {
   delete(id: number): Promise<void>;
 }
 export const isIngredientsPreview: boolean =
-  import.meta.env.DEV && import.meta.env.MODE === 'ingredients-preview';
+  import.meta.env.DEV &&
+  ['ingredients-preview', 'admin-preview'].includes(import.meta.env.MODE);
 
 async function notConfigured(): Promise<never> {
   throw {

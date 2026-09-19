@@ -4,6 +4,10 @@ import axios, { type AxiosRequestConfig } from 'axios';
 import type { RootState } from '@/app/store';
 import { apiClient } from '@/shared/api/api-client';
 import {
+  createPreviewNutrient,
+  previewNutrientRequest,
+} from './nutrients-preview';
+import {
   NUTRIENT_UNITS,
   type Nutrient,
   type NutrientFormValues,
@@ -40,6 +44,10 @@ interface AxiosBaseQueryArgs {
   data?: unknown;
   params?: Record<string, unknown>;
 }
+
+export const isNutrientsPreview =
+  import.meta.env.DEV &&
+  ['nutrients-preview', 'admin-preview'].includes(import.meta.env.MODE);
 
 function isNutrientUnit(value: unknown): value is NutrientUnit {
   return NUTRIENT_UNITS.includes(value as NutrientUnit);
@@ -126,6 +134,16 @@ const axiosBaseQuery =
   async ({ url, method, data, params }, api) => {
     const token = (api.getState() as RootState).auth.accessToken;
     try {
+      if (isNutrientsPreview) {
+        if (url === '/nutrients' && method === 'POST') {
+          return {
+            data: createPreviewNutrient(
+              data as { name: string; unit: NutrientUnit },
+            ),
+          };
+        }
+        return previewNutrientRequest({ url, method, data, params });
+      }
       const response = await apiClient.request({
         url,
         method,
