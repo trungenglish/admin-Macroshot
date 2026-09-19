@@ -26,6 +26,33 @@ export const appRouter = createBrowserRouter([
     },
     children: [
       {
+        path: 'ingredients',
+        lazy: async () => {
+          const { IngredientsPage } =
+            await import('@/features/ingredients/pages/IngredientsPage');
+
+          return { Component: IngredientsPage };
+        },
+      },
+      {
+        path: 'ingredients/new',
+        lazy: async () => {
+          const { IngredientFormPage } =
+            await import('@/features/ingredients/pages/IngredientFormPage');
+
+          return { Component: IngredientFormPage };
+        },
+      },
+      {
+        path: 'ingredients/:id/edit',
+        lazy: async () => {
+          const { IngredientFormPage } =
+            await import('@/features/ingredients/pages/IngredientFormPage');
+
+          return { Component: IngredientFormPage };
+        },
+      },
+      {
         path: 'nutrients',
         lazy: async () => {
           const { NutrientsPage } =

@@ -16,7 +16,7 @@ export const APP_SIDEBAR = {
     { title: 'Dashboard', url: '#', Icon: LayoutDashboardIcon },
     { title: 'Users', url: '#', Icon: UsersIcon },
     { title: 'Recipes', url: '#', Icon: UtensilsIcon },
-    { title: 'Ingredients', url: '#', Icon: CarrotIcon },
+    { title: 'Ingredients', url: '/admin/ingredients', Icon: CarrotIcon },
     { title: 'Nutrients', url: '/admin/nutrients', Icon: TestTubeIcon },
   ],
   secondaryNav: [
