@@ -76,7 +76,7 @@ export function IngredientFormPage(): React.JSX.Element {
   }
   const loading = editing && validId && !ingredient && !detail.isError;
   return (
-    <main className='mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6'>
+    <div className='mx-auto flex w-full max-w-4xl flex-col gap-6'>
       <div className='flex flex-wrap items-center justify-between gap-4'>
         <h1>{editing ? 'Edit ingredient' : 'Create ingredient'}</h1>
         <Button
@@ -147,6 +147,6 @@ export function IngredientFormPage(): React.JSX.Element {
         </>
       )}
       {guard.confirmation}
-    </main>
+    </div>
   );
 }
