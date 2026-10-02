@@ -1,0 +1,141 @@
+openapi: 3.1.0
+info:
+  title: NutriPal Admin Login Contract
+  version: 1.0.0
+  description: >-
+    Frontend-consumed contract for the admin login operation in feature
+    003-admin-auth-integration. VITE_API_URL supplies the server origin.
+servers:
+  - url: "{apiBaseUrl}"
+    variables:
+      apiBaseUrl:
+        default: http://localhost:8000
+        description: Value supplied through VITE_API_URL for the active environment.
+paths:
+  /api/v1/admin/login:
+    post:
+      operationId: loginAdmin
+      summary: Authenticate an administrator with username and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginRequest"
+      responses:
+        "200":
+          description: Authentication succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminLoginSuccess"
+        "400":
+          $ref: "#/components/responses/LoginError"
+        "401":
+          $ref: "#/components/responses/LoginError"
+        "403":
+          $ref: "#/components/responses/LoginError"
+        "422":
+          $ref: "#/components/responses/LoginError"
+        "500":
+          $ref: "#/components/responses/LoginError"
+components:
+  responses:
+    LoginError:
+      description: Authentication, validation, authorization, or server failure.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    AdminLoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 1
+          pattern: "^\\S+$"
+          examples:
+            - admin_master
+        password:
+          type: string
+          minLength: 1
+          writeOnly: true
+          examples:
+            - SecurePassword123
+    AdminLoginSuccess:
+      type: object
+      required:
+        - data
+      properties:
+        message:
+          type: string
+          examples:
+            - Admin login successful
+        data:
+          $ref: "#/components/schemas/AdminLoginData"
+      additionalProperties: true
+    AdminLoginData:
+      type: object
+      required:
+        - access_token
+        - user
+      properties:
+        access_token:
+          type: string
+          minLength: 1
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+          examples:
+            - bearer
+        expires_in:
+          type: integer
+          minimum: 1
+        user:
+          $ref: "#/components/schemas/ApiAdminUser"
+      additionalProperties: true
+    ApiAdminUser:
+      type: object
+      required:
+        - id
+        - full_name
+        - email
+      properties:
+        id:
+          type: integer
+        full_name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+      additionalProperties: true
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        detail:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                $ref: "#/components/schemas/ValidationIssue"
+      anyOf:
+        - required:
+            - message
+        - required:
+            - detail
+      additionalProperties: true
+    ValidationIssue:
+      type: object
+      properties:
+        msg:
+          type: string
+      additionalProperties: true
