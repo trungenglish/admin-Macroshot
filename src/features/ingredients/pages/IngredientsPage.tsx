@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { PlusIcon, SearchIcon } from 'lucide-react';
+import { PlusIcon, SearchIcon, XIcon } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,15 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Empty,
   EmptyContent,
@@ -26,7 +35,6 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from '@/components/ui/input-group';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { useListIngredientsQuery } from '../api/ingredients-api';
 import type { IngredientApiError } from '../api/ingredient-transport';
@@ -34,7 +42,9 @@ import { DeleteIngredientDialog } from '../components/DeleteIngredientDialog';
 import { createIngredientColumns } from '../components/IngredientColumns';
 import { IngredientDetailsDialog } from '../components/IngredientDetailsDialog';
 import { IngredientPreviewNotice } from '../components/IngredientPreviewNotice';
+import { IngredientSummaryCards } from '../components/IngredientSummaryCards';
 import { IngredientTable } from '../components/IngredientTable';
+import { IngredientTableSkeleton } from '../components/IngredientTableSkeleton';
 import {
   getIngredientDeletePolicy,
   isSystemIngredient,
@@ -111,6 +121,9 @@ export function IngredientsPage(): React.JSX.Element {
   function changeQuery(changes: Partial<IngredientListQuery>) {
     setSearchParams(writeIngredientSearchParams({ ...query, ...changes }));
   }
+  function clearFilters() {
+    changeQuery({ page: 1, search: '', unit: undefined });
+  }
   const addLink = (
     <Button asChild>
       <Link to={`/admin/ingredients/new${editorSearch}`}>
@@ -141,7 +154,7 @@ export function IngredientsPage(): React.JSX.Element {
       <div className='flex flex-wrap items-center justify-between gap-4'>
         <div className='flex flex-col gap-2'>
           <div className='flex items-center gap-3'>
-            <h1 className='text-2xl font-semibold'>Ingredients</h1>
+            <h1 className='text-2xl font-semibold text-balance'>Ingredients</h1>
             {result && (
               <Badge variant='secondary'>{result.total} ingredients</Badge>
             )}
@@ -153,150 +166,175 @@ export function IngredientsPage(): React.JSX.Element {
         </div>
         {addLink}
       </div>
-      <FieldGroup className='flex flex-col gap-4 sm:flex-row'>
-        <Field className='flex-1'>
-          <FieldLabel
-            htmlFor='ingredient-search'
-            className='sr-only'
-          >
-            Search ingredients
-          </FieldLabel>
-          <InputGroup>
-            <InputGroupInput
-              id='ingredient-search'
-              type='search'
-              placeholder='Search ingredients...'
-              value={searchValue}
-              onChange={(event) => {
-                const value = event.target.value;
-                setSearchDraft({ queryValue: value.trim(), value });
-                changeQuery({ search: value.trim(), page: 1 });
-              }}
-            />
-            <InputGroupAddon>
-              <SearchIcon aria-hidden='true' />
-            </InputGroupAddon>
-          </InputGroup>
-        </Field>
-        <Field className='sm:w-40'>
-          <FieldLabel htmlFor='ingredient-unit-filter'>Unit filter</FieldLabel>
-          <Input
-            id='ingredient-unit-filter'
-            placeholder='All units'
-            maxLength={10}
-            value={unitValue}
-            onChange={(event) => {
-              const value = event.target.value;
-              setUnitDraft({ queryValue: value.trim(), value });
-              changeQuery({ unit: value.trim() || undefined, page: 1 });
-            }}
-          />
-        </Field>
-      </FieldGroup>
-      <section
-        aria-label='Ingredient results'
-        aria-busy={isFetching}
-        className='flex min-w-0 flex-col gap-4'
-      >
-        {isError && (
-          <Alert variant='destructive'>
-            <AlertTitle>Unable to load ingredients</AlertTitle>
-            <AlertDescription>
-              {(error as IngredientApiError)?.message ??
-                'Unable to complete the request. Please try again.'}
-              <Button
-                variant='outline'
-                disabled={isFetching}
-                onClick={() => void refetch()}
-              >
-                {isFetching && (
-                  <Spinner
-                    aria-hidden='true'
-                    data-icon='inline-start'
-                  />
-                )}
-                Retry
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
-        {loading ? (
-          <div
-            role='status'
-            className='flex flex-col gap-3'
-          >
-            <span className='sr-only'>Loading ingredients</span>
-            {[0, 1, 2, 3].map((id) => (
-              <Skeleton
-                key={id}
-                className='h-10 w-full'
-              />
-            ))}
-          </div>
-        ) : (
-          result && (
-            <>
-              {isFetching && (
-                <div
-                  role='status'
-                  className='flex items-center gap-2 text-muted-foreground'
-                >
-                  <Spinner aria-hidden='true' />
-                  Refreshing ingredients
-                </div>
-              )}
-              {result.items.length > 0 || result.total > 0 ? (
-                <IngredientTable
-                  data={result.items.filter(isSystemIngredient)}
-                  total={result.total}
-                  page={query.page}
-                  pageSize={query.pageSize}
-                  columns={columns}
-                  onPageChange={(page) => changeQuery({ page })}
-                  onPageSizeChange={(pageSize) =>
-                    changeQuery({ pageSize, page: 1 })
-                  }
+      <IngredientSummaryCards
+        summary={result?.summary}
+        loading={loading}
+      />
+      <Card className='min-w-0 overflow-hidden'>
+        <CardHeader className='border-b'>
+          <CardTitle>Ingredient catalog</CardTitle>
+          <CardDescription>
+            Search, review nutrition values, and manage every system ingredient.
+          </CardDescription>
+          {result && (
+            <CardAction>
+              <Badge variant='outline'>{result.total} matching</Badge>
+            </CardAction>
+          )}
+        </CardHeader>
+        <CardContent className='flex min-w-0 flex-col gap-5'>
+          <FieldGroup className='grid gap-4 md:grid-cols-[minmax(0,1fr)_10rem]'>
+            <Field>
+              <FieldLabel htmlFor='ingredient-search'>
+                Search ingredients
+              </FieldLabel>
+              <InputGroup>
+                <InputGroupInput
+                  id='ingredient-search'
+                  name='ingredient-search'
+                  type='search'
+                  autoComplete='off'
+                  placeholder='Search by ingredient name…'
+                  value={searchValue}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setSearchDraft({ queryValue: value.trim(), value });
+                    changeQuery({ search: value.trim(), page: 1 });
+                  }}
                 />
-              ) : (
-                !isError && (
-                  <Empty>
-                    <EmptyHeader>
-                      <EmptyTitle>
-                        {hasFilters
-                          ? 'No matching ingredients'
-                          : 'No ingredients yet'}
-                      </EmptyTitle>
-                      <EmptyDescription>
-                        {hasFilters
-                          ? 'Try another search or clear the filters.'
-                          : 'Add your first system ingredient to get started.'}
-                      </EmptyDescription>
-                    </EmptyHeader>
-                    <EmptyContent>
-                      {hasFilters ? (
-                        <Button
-                          variant='outline'
-                          onClick={() =>
-                            changeQuery({
-                              page: 1,
-                              search: '',
-                              unit: undefined,
-                            })
-                          }
-                        >
-                          Clear filters
-                        </Button>
-                      ) : (
-                        addLink
-                      )}
-                    </EmptyContent>
-                  </Empty>
-                )
+                <InputGroupAddon>
+                  <SearchIcon aria-hidden='true' />
+                </InputGroupAddon>
+              </InputGroup>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor='ingredient-unit-filter'>
+                Unit filter
+              </FieldLabel>
+              <Input
+                id='ingredient-unit-filter'
+                name='ingredient-unit-filter'
+                autoComplete='off'
+                placeholder='All units'
+                maxLength={10}
+                value={unitValue}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setUnitDraft({ queryValue: value.trim(), value });
+                  changeQuery({ unit: value.trim() || undefined, page: 1 });
+                }}
+              />
+            </Field>
+          </FieldGroup>
+          {hasFilters && (
+            <section
+              aria-label='Active ingredient filters'
+              className='flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 p-3'
+            >
+              <span className='mr-1 text-sm font-medium'>Active filters</span>
+              {query.search && (
+                <Badge variant='secondary'>Search: {query.search}</Badge>
               )}
-            </>
-          )
-        )}
-      </section>
+              {query.unit && (
+                <Badge variant='secondary'>Unit: {query.unit}</Badge>
+              )}
+              <Button
+                variant='ghost'
+                size='sm'
+                className='ml-auto'
+                onClick={clearFilters}
+              >
+                <XIcon
+                  aria-hidden='true'
+                  data-icon='inline-start'
+                />
+                Clear filters
+              </Button>
+            </section>
+          )}
+          <section
+            aria-label='Ingredient results'
+            aria-busy={isFetching}
+            className='flex min-w-0 flex-col gap-4'
+          >
+            {isError && (
+              <Alert variant='destructive'>
+                <AlertTitle>Unable to load ingredients</AlertTitle>
+                <AlertDescription>
+                  {(error as IngredientApiError)?.message ??
+                    'Unable to complete the request. Please try again.'}
+                  <Button
+                    variant='outline'
+                    disabled={isFetching}
+                    onClick={() => void refetch()}
+                  >
+                    {isFetching && (
+                      <Spinner
+                        aria-hidden='true'
+                        data-icon='inline-start'
+                      />
+                    )}
+                    Retry
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+            {loading ? (
+              <IngredientTableSkeleton />
+            ) : (
+              result && (
+                <>
+                  {isFetching && (
+                    <div
+                      role='status'
+                      className='flex items-center gap-2 text-muted-foreground'
+                    >
+                      <Spinner aria-hidden='true' />
+                      Refreshing ingredients
+                    </div>
+                  )}
+                  {result.items.length > 0 || result.total > 0 ? (
+                    <IngredientTable
+                      data={result.items.filter(isSystemIngredient)}
+                      total={result.total}
+                      page={query.page}
+                      pageSize={query.pageSize}
+                      columns={columns}
+                      onPageChange={(page) => changeQuery({ page })}
+                      onPageSizeChange={(pageSize) =>
+                        changeQuery({ pageSize, page: 1 })
+                      }
+                    />
+                  ) : (
+                    !isError && (
+                      <Empty>
+                        <EmptyHeader>
+                          <EmptyTitle>
+                            {hasFilters
+                              ? 'No matching ingredients'
+                              : 'No ingredients yet'}
+                          </EmptyTitle>
+                          <EmptyDescription>
+                            {hasFilters
+                              ? 'Try another search or clear the filters above.'
+                              : 'Add your first system ingredient to get started.'}
+                          </EmptyDescription>
+                        </EmptyHeader>
+                        {!hasFilters && <EmptyContent>{addLink}</EmptyContent>}
+                      </Empty>
+                    )
+                  )}
+                </>
+              )
+            )}
+          </section>
+        </CardContent>
+        <CardFooter className='border-t text-xs text-muted-foreground'>
+          {result?.summary
+            ? 'Overview values reflect the complete preview dataset; filters affect the table results only.'
+            : 'Filters affect the table results and stay synchronized with the URL.'}
+        </CardFooter>
+      </Card>
       <IngredientDetailsDialog
         id={detailsId}
         onClose={() => setDetailsId(null)}

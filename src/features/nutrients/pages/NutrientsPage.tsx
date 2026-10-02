@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { PlusIcon, SearchIcon } from 'lucide-react';
+import { PlusIcon, SearchIcon, XIcon } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -14,6 +14,15 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Empty,
   EmptyContent,
@@ -48,6 +57,7 @@ import { createNutrientColumns } from '../components/NutrientColumns';
 import { NutrientDetailsDialog } from '../components/NutrientDetailsDialog';
 import { NutrientFormDialog } from '../components/NutrientFormDialog';
 import { NutrientStatusDialog } from '../components/NutrientStatusDialog';
+import { NutrientSummaryCards } from '../components/NutrientSummaryCards';
 import { NutrientTable } from '../components/NutrientTable';
 import { NutrientTableSkeleton } from '../components/NutrientTableSkeleton';
 import { getNutrientActionPolicy } from '../nutrient-policy';
@@ -111,6 +121,15 @@ export function NutrientsPage() {
 
   function changeQuery(changes: Partial<NutrientListQuery>) {
     setSearchParams(writeNutrientSearchParams({ ...query, ...changes }));
+  }
+
+  function clearFilters() {
+    changeQuery({
+      page: 1,
+      search: '',
+      unit: undefined,
+      isActive: undefined,
+    });
   }
 
   function onOpenChange(open: boolean) {
@@ -177,7 +196,7 @@ export function NutrientsPage() {
       <div className='flex flex-wrap items-center justify-between gap-4'>
         <div className='flex flex-col gap-2'>
           <div className='flex items-center gap-3'>
-            <h1 className='text-2xl font-semibold'>Nutrients</h1>
+            <h1 className='text-2xl font-semibold text-balance'>Nutrients</h1>
             {result && (
               <Badge variant='secondary'>{result.total} nutrients</Badge>
             )}
@@ -195,194 +214,224 @@ export function NutrientsPage() {
           Add nutrient
         </Button>
       </div>
-      <FieldGroup className='flex flex-col gap-4 sm:flex-row'>
-        <Field className='flex-1'>
-          <FieldLabel
-            htmlFor='nutrient-search'
-            className='sr-only'
-          >
-            Search nutrients
-          </FieldLabel>
-          <InputGroup>
-            <InputGroupInput
-              id='nutrient-search'
-              type='search'
-              placeholder='Search nutrients...'
-              value={searchParams.get('search') ?? ''}
-              onChange={(event) =>
-                changeQuery({ search: event.target.value, page: 1 })
-              }
-            />
-            <InputGroupAddon>
-              <SearchIcon aria-hidden='true' />
-            </InputGroupAddon>
-          </InputGroup>
-        </Field>
-        <Field className='sm:w-auto'>
-          <FieldLabel
-            htmlFor='nutrient-unit-filter'
-            className='sr-only'
-          >
-            Unit filter
-          </FieldLabel>
-          <Select
-            value={query.unit ?? 'all'}
-            onValueChange={(value) =>
-              changeQuery({
-                unit: value === 'all' ? undefined : (value as NutrientUnit),
-                page: 1,
-              })
-            }
-          >
-            <SelectTrigger
-              id='nutrient-unit-filter'
-              className='w-full sm:w-40'
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value='all'>All units</SelectItem>
-                {NUTRIENT_UNITS.map((unit) => (
-                  <SelectItem
-                    key={unit}
-                    value={unit}
-                  >
-                    {unit}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field className='sm:w-auto'>
-          <FieldLabel
-            htmlFor='nutrient-status-filter'
-            className='sr-only'
-          >
-            Status filter
-          </FieldLabel>
-          <Select
-            value={
-              query.isActive === undefined ? 'all' : String(query.isActive)
-            }
-            onValueChange={(value) =>
-              changeQuery({
-                isActive: value === 'all' ? undefined : value === 'true',
-                page: 1,
-              })
-            }
-          >
-            <SelectTrigger
-              id='nutrient-status-filter'
-              className='w-full sm:w-40'
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value='all'>All statuses</SelectItem>
-                <SelectItem value='true'>Active</SelectItem>
-                <SelectItem value='false'>Inactive</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </Field>
-      </FieldGroup>
-      <section
-        aria-label='Nutrient results'
-        aria-busy={isFetching}
-        className='flex min-w-0 flex-col gap-4'
-      >
-        {isError && (
-          <Alert variant='destructive'>
-            <AlertTitle>Unable to load nutrients</AlertTitle>
-            <AlertDescription>
-              {(error as ApiError)?.message ??
-                'Unable to complete the request. Please try again.'}
-              <Button
-                variant='outline'
-                disabled={isFetching}
-                onClick={() => void refetch()}
-              >
-                {isFetching && (
-                  <Spinner
-                    aria-hidden='true'
-                    data-icon='inline-start'
-                  />
-                )}
-                Retry
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
-        {loading ? (
-          <NutrientTableSkeleton />
-        ) : (
-          result && (
-            <>
-              {isFetching && (
-                <div
-                  role='status'
-                  className='flex items-center gap-2 text-muted-foreground'
-                >
-                  <Spinner aria-hidden='true' />
-                  Refreshing nutrients
-                </div>
-              )}
-              {result.items.length > 0 || result.total > 0 ? (
-                <NutrientTable
-                  data={result.items}
-                  total={result.total}
-                  page={query.page}
-                  pageSize={query.pageSize}
-                  columns={columns}
-                  onPageChange={(page) => changeQuery({ page })}
-                  onPageSizeChange={(pageSize) =>
-                    changeQuery({ pageSize, page: 1 })
+      <NutrientSummaryCards
+        summary={result?.summary}
+        loading={loading}
+      />
+      <Card className='min-w-0 overflow-hidden'>
+        <CardHeader className='border-b'>
+          <CardTitle>Nutrient catalog</CardTitle>
+          <CardDescription>
+            Search, filter, and manage every nutrient from one place.
+          </CardDescription>
+          {result && (
+            <CardAction>
+              <Badge variant='outline'>{result.total} matching</Badge>
+            </CardAction>
+          )}
+        </CardHeader>
+        <CardContent className='flex min-w-0 flex-col gap-5'>
+          <FieldGroup className='grid gap-4 md:grid-cols-[minmax(0,1fr)_10rem_10rem]'>
+            <Field>
+              <FieldLabel htmlFor='nutrient-search'>Search</FieldLabel>
+              <InputGroup>
+                <InputGroupInput
+                  id='nutrient-search'
+                  name='nutrient-search'
+                  type='search'
+                  autoComplete='off'
+                  placeholder='Search by nutrient name…'
+                  value={searchParams.get('search') ?? ''}
+                  onChange={(event) =>
+                    changeQuery({ search: event.target.value, page: 1 })
                   }
                 />
-              ) : (
-                !isError && (
-                  <Empty>
-                    <EmptyHeader>
-                      <EmptyTitle>
-                        {hasFilters
-                          ? 'No matching nutrients'
-                          : 'No nutrients yet'}
-                      </EmptyTitle>
-                      <EmptyDescription>
-                        {hasFilters
-                          ? 'Try another search or clear the filters.'
-                          : 'Add your first nutrient to get started.'}
-                      </EmptyDescription>
-                    </EmptyHeader>
-                    <EmptyContent>
-                      {hasFilters ? (
-                        <Button
-                          variant='outline'
-                          onClick={() =>
-                            changeQuery({
-                              page: 1,
-                              search: '',
-                              unit: undefined,
-                              isActive: undefined,
-                            })
-                          }
-                        >
-                          Clear filters
-                        </Button>
-                      ) : (
-                        <Button onClick={addNutrient}>Add nutrient</Button>
-                      )}
-                    </EmptyContent>
-                  </Empty>
-                )
+                <InputGroupAddon>
+                  <SearchIcon aria-hidden='true' />
+                </InputGroupAddon>
+              </InputGroup>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor='nutrient-unit-filter'>Unit</FieldLabel>
+              <Select
+                value={query.unit ?? 'all'}
+                onValueChange={(value) =>
+                  changeQuery({
+                    unit: value === 'all' ? undefined : (value as NutrientUnit),
+                    page: 1,
+                  })
+                }
+              >
+                <SelectTrigger
+                  id='nutrient-unit-filter'
+                  className='w-full'
+                  aria-label='Unit filter'
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value='all'>All units</SelectItem>
+                    {NUTRIENT_UNITS.map((unit) => (
+                      <SelectItem
+                        key={unit}
+                        value={unit}
+                      >
+                        {unit}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor='nutrient-status-filter'>Status</FieldLabel>
+              <Select
+                value={
+                  query.isActive === undefined ? 'all' : String(query.isActive)
+                }
+                onValueChange={(value) =>
+                  changeQuery({
+                    isActive: value === 'all' ? undefined : value === 'true',
+                    page: 1,
+                  })
+                }
+              >
+                <SelectTrigger
+                  id='nutrient-status-filter'
+                  className='w-full'
+                  aria-label='Status filter'
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value='all'>All statuses</SelectItem>
+                    <SelectItem value='true'>Active</SelectItem>
+                    <SelectItem value='false'>Inactive</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </Field>
+          </FieldGroup>
+          {hasFilters && (
+            <section
+              aria-label='Active nutrient filters'
+              className='flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 p-3'
+            >
+              <span className='mr-1 text-sm font-medium'>Active filters</span>
+              {query.search && (
+                <Badge variant='secondary'>Search: {query.search}</Badge>
               )}
-            </>
-          )
-        )}
-      </section>
+              {query.unit && (
+                <Badge variant='secondary'>Unit: {query.unit}</Badge>
+              )}
+              {query.isActive !== undefined && (
+                <Badge variant='secondary'>
+                  Status: {query.isActive ? 'Active' : 'Inactive'}
+                </Badge>
+              )}
+              <Button
+                variant='ghost'
+                size='sm'
+                className='ml-auto'
+                onClick={clearFilters}
+              >
+                <XIcon
+                  aria-hidden='true'
+                  data-icon='inline-start'
+                />
+                Clear filters
+              </Button>
+            </section>
+          )}
+          <section
+            aria-label='Nutrient results'
+            aria-busy={isFetching}
+            className='flex min-w-0 flex-col gap-4'
+          >
+            {isError && (
+              <Alert variant='destructive'>
+                <AlertTitle>Unable to load nutrients</AlertTitle>
+                <AlertDescription>
+                  {(error as ApiError)?.message ??
+                    'Unable to complete the request. Please try again.'}
+                  <Button
+                    variant='outline'
+                    disabled={isFetching}
+                    onClick={() => void refetch()}
+                  >
+                    {isFetching && (
+                      <Spinner
+                        aria-hidden='true'
+                        data-icon='inline-start'
+                      />
+                    )}
+                    Retry
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+            {loading ? (
+              <NutrientTableSkeleton />
+            ) : (
+              result && (
+                <>
+                  {isFetching && (
+                    <div
+                      role='status'
+                      className='flex items-center gap-2 text-muted-foreground'
+                    >
+                      <Spinner aria-hidden='true' />
+                      Refreshing nutrients
+                    </div>
+                  )}
+                  {result.items.length > 0 || result.total > 0 ? (
+                    <NutrientTable
+                      data={result.items}
+                      total={result.total}
+                      page={query.page}
+                      pageSize={query.pageSize}
+                      columns={columns}
+                      onPageChange={(page) => changeQuery({ page })}
+                      onPageSizeChange={(pageSize) =>
+                        changeQuery({ pageSize, page: 1 })
+                      }
+                    />
+                  ) : (
+                    !isError && (
+                      <Empty>
+                        <EmptyHeader>
+                          <EmptyTitle>
+                            {hasFilters
+                              ? 'No matching nutrients'
+                              : 'No nutrients yet'}
+                          </EmptyTitle>
+                          <EmptyDescription>
+                            {hasFilters
+                              ? 'Try another search or clear the filters above.'
+                              : 'Add your first nutrient to get started.'}
+                          </EmptyDescription>
+                        </EmptyHeader>
+                        {!hasFilters && (
+                          <EmptyContent>
+                            <Button onClick={addNutrient}>Add nutrient</Button>
+                          </EmptyContent>
+                        )}
+                      </Empty>
+                    )
+                  )}
+                </>
+              )
+            )}
+          </section>
+        </CardContent>
+        <CardFooter className='border-t text-xs text-muted-foreground'>
+          {result?.summary
+            ? 'Overview values reflect the complete preview dataset; filters affect the table results only.'
+            : 'Filters affect the table results and stay synchronized with the URL.'}
+        </CardFooter>
+      </Card>
       <NutrientFormDialog
         mode={selection.type === 'edit' ? 'edit' : 'create'}
         nutrient={selection.nutrient}

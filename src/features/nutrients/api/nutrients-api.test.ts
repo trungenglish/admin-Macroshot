@@ -44,6 +44,20 @@ describe('nutrient API adapters', () => {
     ).toMatchObject({ total: 21, page: 2, pageSize: 10 });
   });
 
+  it('maps optional mock summary metadata for the overview cards', () => {
+    expect(
+      normalizeNutrientList({
+        items: [],
+        total: 0,
+        skip: 0,
+        limit: 10,
+        summary: { total: 32, active: 29, inactive: 3 },
+      }),
+    ).toMatchObject({
+      summary: { total: 32, active: 29, inactive: 3 },
+    });
+  });
+
   it('maps backend validation issues to form fields', () => {
     expect(
       normalizeApiErrorPayload(422, {

@@ -8,26 +8,36 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-const headings = ['ID', 'Name', 'Unit', 'Ingredients', 'Status', 'Actions'];
+const headings = [
+  'ID',
+  'Name',
+  'Unit',
+  'Calories',
+  'Protein',
+  'Carbs',
+  'Fat',
+  'Recipe usage',
+  'Actions',
+];
 
-export function NutrientTableSkeleton() {
+export function IngredientTableSkeleton(): React.JSX.Element {
   return (
     <div
       role='status'
-      aria-label='Loading nutrients'
+      aria-label='Loading ingredients'
     >
-      <span className='sr-only'>Loading nutrients…</span>
+      <span className='sr-only'>Loading ingredients</span>
       <div className='overflow-hidden rounded-lg border'>
         <Table
-          aria-label='Loading nutrients'
-          className='min-w-[48rem]'
+          aria-hidden='true'
+          className='min-w-[72rem]'
         >
           <TableHeader className='bg-muted/50'>
             <TableRow>
               {headings.map((heading) => (
                 <TableHead
-                  scope='col'
                   key={heading}
+                  scope='col'
                   className='h-11 px-4'
                 >
                   {heading}

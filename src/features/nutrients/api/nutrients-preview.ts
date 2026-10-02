@@ -56,6 +56,19 @@ function response(data: unknown) {
   return { data };
 }
 
+function getNutrientSummary() {
+  const active = nutrients.reduce(
+    (count, nutrient) => count + Number(nutrient.is_active),
+    0,
+  );
+
+  return {
+    total: nutrients.length,
+    active,
+    inactive: nutrients.length - active,
+  };
+}
+
 export async function previewNutrientRequest({
   url,
   method,
@@ -84,6 +97,7 @@ export async function previewNutrientRequest({
       total: filtered.length,
       skip,
       limit,
+      summary: getNutrientSummary(),
     });
   }
 

@@ -47,6 +47,11 @@ const result: NutrientListResult = {
   total: 30,
   page: 1,
   pageSize: 10,
+  summary: {
+    total: 30,
+    active: 24,
+    inactive: 6,
+  },
 };
 const refetch = vi.fn();
 const create = vi.fn();
@@ -125,6 +130,26 @@ beforeEach(() => {
 });
 
 describe('NutrientsPage', () => {
+  it('shows a full-collection overview from the current mock response', () => {
+    renderPage('/admin/nutrients');
+
+    const overview = screen.getByRole('region', {
+      name: 'Nutrient overview',
+    });
+    expect(within(overview).getByText('Total nutrients')).toBeInTheDocument();
+    expect(within(overview).getByText('30')).toBeInTheDocument();
+    expect(within(overview).getByText('Active')).toBeInTheDocument();
+    expect(within(overview).getByText('24')).toBeInTheDocument();
+    expect(within(overview).getByText('Inactive')).toBeInTheDocument();
+    expect(within(overview).getByText('6')).toBeInTheDocument();
+    expect(
+      within(overview).getByRole('progressbar', {
+        name: 'Active nutrient ratio',
+      }),
+    ).toHaveAttribute('aria-valuenow', '80');
+    expect(hooks.useGetNutrientsQuery).toHaveBeenCalledTimes(1);
+  });
+
   it('reads filters from the URL and requests the matching server page', () => {
     renderPage('/admin/nutrients?page=2&pageSize=25&unit=mg&isActive=false');
     expect(hooks.useGetNutrientsQuery).toHaveBeenCalledWith({
@@ -231,13 +256,21 @@ describe('NutrientsPage', () => {
       }),
     );
     renderPage('/admin/nutrients');
+    const overview = screen.getByRole('region', {
+      name: 'Nutrient overview',
+    });
+    expect(overview).toBeInTheDocument();
+    expect(within(overview).getAllByText('Loading overview…')).toHaveLength(3);
+    expect(
+      within(overview).queryByText('Overview unavailable'),
+    ).not.toBeInTheDocument();
     expect(
       within(
         screen.getByRole('region', { name: 'Nutrient results' }),
       ).getByRole('status'),
     ).toHaveTextContent('Loading nutrients');
     expect(document.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(
-      30,
+      33,
     );
     expect(screen.getAllByRole('columnheader')).toHaveLength(6);
     expect(screen.queryByText('No nutrients yet')).not.toBeInTheDocument();
@@ -304,6 +337,28 @@ describe('NutrientsPage', () => {
     expect(hooks.useGetNutrientsQuery).toHaveBeenLastCalledWith({
       page: 1,
       pageSize: 25,
+      search: '',
+    });
+  });
+
+  it('makes active filters visible and clears them from the toolbar', async () => {
+    renderPage('/admin/nutrients?search=iron&unit=mg&isActive=false');
+
+    const activeFilters = screen.getByRole('region', {
+      name: 'Active nutrient filters',
+    });
+    expect(within(activeFilters).getByText('Search: iron')).toBeInTheDocument();
+    expect(within(activeFilters).getByText('Unit: mg')).toBeInTheDocument();
+    expect(
+      within(activeFilters).getByText('Status: Inactive'),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      within(activeFilters).getByRole('button', { name: 'Clear filters' }),
+    );
+    expect(hooks.useGetNutrientsQuery).toHaveBeenLastCalledWith({
+      page: 1,
+      pageSize: 10,
       search: '',
     });
   });
@@ -631,8 +686,8 @@ describe('NutrientsPage', () => {
     renderPage('/admin/nutrients?page=2&unit=mg&isActive=false');
     expect(screen.queryByText('No matching nutrients')).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Clear filters' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('button', { name: 'Clear filters' }),
+    ).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Previous' }));
     expect(hooks.useGetNutrientsQuery).toHaveBeenLastCalledWith({
       page: 1,

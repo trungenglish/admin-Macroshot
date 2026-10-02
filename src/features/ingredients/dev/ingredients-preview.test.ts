@@ -31,6 +31,27 @@ afterEach(() => {
 });
 
 describe('preview isolation and fixture queries', () => {
+  // Break caught: overview cards shrink to the current filter instead of
+  // describing the complete system ingredient catalog.
+  it('returns complete overview counts independently from table filters', async () => {
+    const result = await preview.list({
+      page: 1,
+      pageSize: 10,
+      search: 'Brown',
+      unit: 'g',
+    });
+
+    expect(result).toMatchObject({
+      total: 1,
+      summary: {
+        total: 14,
+        inUse: 1,
+        withNutrientData: 2,
+        unknownRecipeUsage: 1,
+      },
+    });
+  });
+
   // Break caught: the shared client enables fixture responses outside the opt-in
   // guard, misses the preview adapter, or intercepts the real login boundary.
   it.each([

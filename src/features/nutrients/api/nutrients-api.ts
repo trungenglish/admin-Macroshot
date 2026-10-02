@@ -13,6 +13,7 @@ import {
   type NutrientFormValues,
   type NutrientListQuery,
   type NutrientListResult,
+  type NutrientSummary,
   type NutrientUnit,
   type NutrientUpdateInput,
 } from '../nutrient.types';
@@ -30,6 +31,7 @@ interface NutrientListDto {
   total: number;
   skip: number;
   limit: number;
+  summary?: NutrientSummary;
 }
 
 export interface ApiError {
@@ -72,6 +74,7 @@ export function normalizeNutrientList(
     total: dto.total,
     page: Math.floor(dto.skip / dto.limit) + 1,
     pageSize: dto.limit,
+    ...(dto.summary ? { summary: dto.summary } : {}),
   };
 }
 

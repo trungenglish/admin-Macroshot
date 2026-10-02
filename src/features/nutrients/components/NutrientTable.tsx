@@ -1,3 +1,5 @@
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+
 import {
   flexRender,
   getCoreRowModel,
@@ -63,49 +65,62 @@ export function NutrientTable({
 
   return (
     <div className='flex min-w-0 flex-col gap-4'>
-      <Table
-        aria-label='Nutrients'
-        className='min-w-max'
-      >
-        <TableHeader>
-          {table.getHeaderGroups().map((group) => (
-            <TableRow key={group.id}>
-              {group.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  scope='col'
+      <div className='overflow-hidden rounded-lg border'>
+        <Table
+          aria-label='Nutrients'
+          className='min-w-[48rem]'
+        >
+          <TableHeader className='bg-muted/50'>
+            {table.getHeaderGroups().map((group) => (
+              <TableRow key={group.id}>
+                {group.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    scope='col'
+                    className='h-11 px-4'
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {data.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 px-4 text-center text-muted-foreground'
                 >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {data.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={columns.length}>
-                No nutrients on this page.
-              </TableCell>
-            </TableRow>
-          )}
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  No nutrients on this page.
                 </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <div className='flex flex-wrap items-center justify-between gap-4'>
+              </TableRow>
+            )}
+            {table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-status={row.original.isActive ? 'active' : 'inactive'}
+                className='data-[status=inactive]:bg-muted/20'
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className='h-14 px-4'
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
         <Field
           orientation='horizontal'
           className='w-auto'
@@ -144,11 +159,15 @@ export function NutrientTable({
                 disabled={!table.getCanPreviousPage()}
                 onClick={() => onPageChange(page - 1)}
               >
+                <ChevronLeftIcon
+                  aria-hidden='true'
+                  data-icon='inline-start'
+                />
                 Previous
               </Button>
             </PaginationItem>
             <PaginationItem>
-              <span className='px-3 text-sm'>
+              <span className='px-3 text-sm tabular-nums'>
                 Page {page} of {Math.max(1, table.getPageCount())}
               </span>
             </PaginationItem>
@@ -160,6 +179,10 @@ export function NutrientTable({
                 onClick={() => onPageChange(page + 1)}
               >
                 Next
+                <ChevronRightIcon
+                  aria-hidden='true'
+                  data-icon='inline-end'
+                />
               </Button>
             </PaginationItem>
           </PaginationContent>

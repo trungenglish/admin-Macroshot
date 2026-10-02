@@ -64,6 +64,26 @@ function readIngredient(ingredient: Ingredient): Ingredient {
   };
 }
 
+function getIngredientSummary() {
+  return ingredients.filter(isSystemIngredient).reduce(
+    (summary, ingredient) => ({
+      total: summary.total + 1,
+      inUse: summary.inUse + Number((ingredient.recipeCount ?? 0) > 0),
+      withNutrientData:
+        summary.withNutrientData +
+        Number((ingredient.nutrientLinks?.length ?? 0) > 0),
+      unknownRecipeUsage:
+        summary.unknownRecipeUsage + Number(ingredient.recipeCount === null),
+    }),
+    {
+      total: 0,
+      inUse: 0,
+      withNutrientData: 0,
+      unknownRecipeUsage: 0,
+    },
+  );
+}
+
 const macro = z.number().int().nonnegative();
 const saveSchema = ingredientFormSchema.extend({
   calPer100g: macro,
@@ -153,6 +173,7 @@ export const previewIngredientTransport: IngredientTransport = {
       total: matching.length,
       page,
       pageSize,
+      summary: getIngredientSummary(),
     };
   },
   async detail(id) {

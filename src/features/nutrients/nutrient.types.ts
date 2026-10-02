@@ -19,11 +19,18 @@ export interface NutrientListQuery {
   isActive?: boolean;
 }
 
+export interface NutrientSummary {
+  total: number;
+  active: number;
+  inactive: number;
+}
+
 export interface NutrientListResult {
   items: Nutrient[];
   total: number;
   page: number;
   pageSize: number;
+  summary?: NutrientSummary;
 }
 
 export interface NutrientFormValues {

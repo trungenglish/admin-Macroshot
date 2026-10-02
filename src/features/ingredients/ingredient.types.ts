@@ -29,11 +29,19 @@ export interface IngredientListQuery {
   unit?: string;
 }
 
+export interface IngredientSummary {
+  total: number;
+  inUse: number;
+  withNutrientData: number;
+  unknownRecipeUsage: number;
+}
+
 export interface IngredientListResult {
   items: Ingredient[];
   total: number;
   page: number;
   pageSize: number;
+  summary?: IngredientSummary;
 }
 
 export interface IngredientFormValues {

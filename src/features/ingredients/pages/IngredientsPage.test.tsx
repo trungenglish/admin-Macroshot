@@ -78,6 +78,60 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 describe('IngredientsPage', () => {
+  // Break caught: dashboard figures are derived from the current page/filter or
+  // disappear, so admins cannot assess catalog coverage at a glance.
+  it('shows complete catalog overview values from preview summary data', async () => {
+    setup('/admin/ingredients?search=Brown&unit=g');
+
+    const overview = await screen.findByRole('region', {
+      name: 'Ingredient overview',
+    });
+    expect(
+      within(overview).getByRole('heading', { name: 'Total ingredients' }),
+    ).toBeVisible();
+    expect(
+      within(overview).getByRole('heading', { name: 'Used in recipes' }),
+    ).toBeVisible();
+    expect(
+      within(overview).getByRole('heading', {
+        name: 'Micronutrient profiles',
+      }),
+    ).toBeVisible();
+    expect(await within(overview).findByText('14')).toBeVisible();
+    expect(within(overview).getByText('1')).toBeVisible();
+    expect(within(overview).getByText('2')).toBeVisible();
+    expect(
+      within(overview).getByRole('progressbar', {
+        name: 'Ingredient nutrient coverage',
+      }),
+    ).toHaveAttribute('aria-valuenow', '14');
+    expect(
+      within(overview).getByText('1 record needs usage review'),
+    ).toBeVisible();
+  });
+
+  // Break caught: URL filters remain hidden after a reload, leaving admins
+  // unable to tell why rows are missing or clear the whole filter set quickly.
+  it('shows active URL filters and clears them together', async () => {
+    const { router } = setup('/admin/ingredients?search=Brown&unit=g');
+
+    await screen.findByText('Brown rice');
+    const filters = screen.getByRole('region', {
+      name: 'Active ingredient filters',
+    });
+    expect(within(filters).getByText('Search: Brown')).toBeVisible();
+    expect(within(filters).getByText('Unit: g')).toBeVisible();
+
+    await userEvent.click(
+      within(filters).getByRole('button', { name: 'Clear filters' }),
+    );
+    await screen.findByText('Tomatoes');
+    expect(router.state.location.search).toBe('');
+    expect(
+      screen.queryByRole('region', { name: 'Active ingredient filters' }),
+    ).not.toBeInTheDocument();
+  });
+
   // Break caught: stale RTK data under a new URL remains visible or is locally paginated.
   it('shows server pages, system rows and all mandatory columns', async () => {
     setup();
@@ -102,6 +156,20 @@ describe('IngredientsPage', () => {
     expect(await screen.findByText('Bananas')).toBeVisible();
     expect(screen.queryByText('Tomatoes')).not.toBeInTheDocument();
     expect(screen.getByText('Page 2 of 2')).toBeVisible();
+  });
+  // Break caught: zero and unavailable recipe usage render as bare numbers or
+  // the same state, causing unsafe delete decisions while scanning the table.
+  it('labels used, unused, and unknown recipe usage distinctly', async () => {
+    setup();
+
+    const tomatoes = await screen.findByRole('row', { name: /Tomatoes/ });
+    const rice = screen.getByRole('row', { name: /Brown rice/ });
+    const unknown = screen.getByRole('row', {
+      name: /Unknown recipe usage/,
+    });
+    expect(within(tomatoes).getByText('Not used')).toBeVisible();
+    expect(within(rice).getByText('2 recipes')).toBeVisible();
+    expect(within(unknown).getByText('Unknown')).toBeVisible();
   });
   it.each([401, 403, 500])(
     'shows %s errors and retries without synthetic success',
