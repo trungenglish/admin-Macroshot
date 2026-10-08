@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { previewIngredientTransport as preview } from '../dev/ingredients-preview';
+import { ingredientTransportFixture as preview } from '@/test/fixtures/ingredient-transport.fixture';
 import { IngredientRowActions } from './IngredientRowActions';
 
 afterEach(cleanup);
@@ -61,6 +61,15 @@ describe('IngredientRowActions', () => {
     await userEvent.click(
       screen.getByRole('button', { name: 'Actions for Tomatoes' }),
     );
+    expect(
+      screen.getByRole('menuitem', { name: 'View details' }).querySelector('svg'),
+    ).toHaveAttribute('data-icon', 'view');
+    expect(
+      screen.getByRole('menuitem', { name: 'Edit' }).querySelector('svg'),
+    ).toHaveAttribute('data-icon', 'edit');
+    expect(
+      screen.getByRole('menuitem', { name: 'Delete' }).querySelector('svg'),
+    ).toHaveAttribute('data-icon', 'delete');
     await userEvent.click(screen.getByRole('menuitem', { name: 'Delete' }));
     expect(onDelete).toHaveBeenCalledWith(ingredient);
   });

@@ -1,14 +1,14 @@
 import axios from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { IngredientSaveInput } from '../ingredient.types';
+import type { IngredientSaveInput } from '@/features/ingredients/ingredient.types';
 import {
-  previewIngredientTransport as preview,
-  resetIngredientsPreview,
-} from './ingredients-preview';
-import { nutrientsPreviewAdapter } from './nutrients-preview-adapter';
+  ingredientTransportFixture as preview,
+  resetIngredientFixtures,
+} from './ingredient-transport.fixture';
+import { nutrientsApiFixtureAdapter } from './nutrients-api.fixture-adapter';
 
-const client = axios.create({ adapter: nutrientsPreviewAdapter });
+const client = axios.create({ adapter: nutrientsApiFixtureAdapter });
 const query = { page: 1, pageSize: 10, search: '' };
 const input: IngredientSaveInput = {
   name: 'Test lentils',
@@ -24,13 +24,13 @@ const input: IngredientSaveInput = {
   inputType: '100g',
 };
 
-beforeEach(resetIngredientsPreview);
+beforeEach(resetIngredientFixtures);
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
 });
 
-describe('preview isolation and fixture queries', () => {
+describe('ingredient transport fixture queries', () => {
   // Break caught: overview cards shrink to the current filter instead of
   // describing the complete system ingredient catalog.
   it('returns complete overview counts independently from table filters', async () => {
@@ -51,83 +51,6 @@ describe('preview isolation and fixture queries', () => {
       },
     });
   });
-
-  // Break caught: the shared client enables fixture responses outside the opt-in
-  // guard, misses the preview adapter, or intercepts the real login boundary.
-  it.each([
-    [true, 'development', false],
-    [false, 'ingredients-preview', false],
-    [true, 'ingredients-preview', true],
-  ] as const)(
-    'shared Axios DEV=%s MODE=%s uses Nutrient preview=%s and delegates login',
-    async (dev, mode, enabled) => {
-      vi.stubEnv('DEV', dev);
-      vi.stubEnv('MODE', mode);
-      vi.resetModules();
-      const runtimeAxios = (await import('axios')).default;
-      const original = runtimeAxios.defaults.adapter;
-      runtimeAxios.defaults.adapter = async (config) => ({
-        data: { source: 'original adapter' },
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config,
-      });
-      try {
-        const { apiClient } = await import('@/shared/api/api-client');
-        const result = await apiClient.get('/nutrients', {
-          params: { search: 'Iron', skip: 0, limit: 10 },
-        });
-        if (enabled) {
-          expect(
-            result.data.items.map((item: { name: string }) => item.name),
-          ).toEqual(['Iron']);
-        } else {
-          expect(result.data).toEqual({ source: 'original adapter' });
-        }
-        const login = await apiClient.post('/api/v1/admin/login', {
-          username: 'preview-test',
-          password: 'not-a-real-password',
-        });
-        expect(login.data).toEqual({ source: 'original adapter' });
-      } finally {
-        runtimeAxios.defaults.adapter = original;
-      }
-    },
-  );
-
-  // Break caught: preview enabling outside an explicit development mode.
-  it.each([
-    [true, 'development', false],
-    [false, 'ingredients-preview', false],
-    [true, 'ingredients-preview', true],
-  ] as const)(
-    'DEV=%s MODE=%s enables preview=%s',
-    async (dev, mode, enabled) => {
-      vi.stubEnv('DEV', dev);
-      vi.stubEnv('MODE', mode);
-      vi.resetModules();
-      const transport = await import('../api/ingredient-transport');
-      expect(transport.isIngredientsPreview).toBe(enabled);
-      const port = await transport.getIngredientTransport();
-      if (enabled) expect((await port.list(query)).items.length).toBe(10);
-      else {
-        for (const operation of [
-          () => port.list(query),
-          () => port.detail(1),
-          () => port.create(input),
-          () => port.update(1, input),
-          () => port.delete(1),
-        ]) {
-          await expect(operation()).rejects.toEqual({
-            status: 'NOT_CONFIGURED',
-            message:
-              'Ingredient API is not configured. Use the development preview or connect a verified backend transport.',
-          });
-        }
-      }
-    },
-  );
 
   // Break caught: personal rows leak into lists or paging/filtering is ignored.
   it('lists only system records with paging, search and unit filters', async () => {
@@ -163,14 +86,14 @@ describe('preview isolation and fixture queries', () => {
     const created = await preview.create(input);
     created.name = 'Outside mutation';
     expect((await preview.detail(created.id)).name).toBe('Test lentils');
-    resetIngredientsPreview();
+    resetIngredientFixtures();
     await expect(preview.detail(created.id)).rejects.toMatchObject({
       status: 404,
     });
   });
 });
 
-describe('preview ingredient policies and atomic saves', () => {
+describe('ingredient fixture policies and atomic saves', () => {
   // Break caught: writes skip the authoritative ownership check.
   it('denies personal ingredient update/delete and forged create ownership', async () => {
     await expect(preview.update(101, input)).rejects.toMatchObject({
@@ -270,7 +193,7 @@ describe('preview ingredient policies and atomic saves', () => {
   });
 });
 
-describe('verified Nutrients preview contract', () => {
+describe('Nutrients API fixture contract', () => {
   // Break caught: picker pagination or inactive filtering uses a disconnected fixture.
   it('supports Nutrient search/unit/status and skip/limit', async () => {
     const active = await client.get('/nutrients', {
@@ -312,7 +235,7 @@ describe('verified Nutrients preview contract', () => {
   // Break caught: nutrient counts are stale, or linked nutrients can be deleted.
   it('shares link counts across Ingredient writes and Nutrient CRUD', async () => {
     const { data: nutrient } = await client.post('/nutrients', {
-      name: 'Preview selenium',
+      name: 'Fixture selenium',
       unit: 'mcg',
     });
     const link = {
@@ -353,7 +276,7 @@ describe('verified Nutrients preview contract', () => {
     );
   });
 
-  // Break caught: preview fabricates authentication or captures unrelated requests.
+  // Break caught: the test fixture fabricates authentication or captures unrelated requests.
   it('delegates unrelated URLs to the original Axios adapter', async () => {
     const original = axios.defaults.adapter;
     axios.defaults.adapter = async (config) => ({
@@ -364,7 +287,7 @@ describe('verified Nutrients preview contract', () => {
       config,
     });
     try {
-      const result = await client.post('/api/v1/admin/login', {
+      const result = await client.post('/api/v1/auth/admin/login', {
         username: 'x',
         password: 'x',
       });

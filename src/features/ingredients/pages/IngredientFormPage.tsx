@@ -6,27 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { normalizeIngredientApiError } from '../api/ingredient-adapter';
-import {
-  isIngredientsPreview,
-  type IngredientApiError,
-} from '../api/ingredient-transport';
+import type { IngredientApiError } from '../api/ingredient-transport';
 import {
   useCreateIngredientMutation,
   useGetIngredientQuery,
   useUpdateIngredientMutation,
 } from '../api/ingredients-api';
 import { IngredientForm } from '../components/IngredientForm';
-import { IngredientPreviewNotice } from '../components/IngredientPreviewNotice';
 import { useIngredientDirtyGuard } from '../hooks/use-ingredient-dirty-guard';
 import { isSystemIngredient } from '../ingredient-policy';
 import { getIngredientReturnTo } from '../ingredient-query';
 import type { IngredientSaveInput } from '../ingredient.types';
 
-const integrationError: IngredientApiError = {
-  status: 'NOT_CONFIGURED',
-  message:
-    'Ingredient API is not configured. Use the development preview or connect a verified backend transport.',
-};
 export function IngredientFormPage(): React.JSX.Element {
   const { id: rawId } = useParams();
   const [params] = useSearchParams();
@@ -51,7 +42,6 @@ export function IngredientFormPage(): React.JSX.Element {
       'Ingredient nutrient metadata is unavailable. Editing is disabled.';
 
   async function save(input: IngredientSaveInput) {
-    if (!isIngredientsPreview) throw integrationError;
     if (
       editing &&
       (!validId ||
@@ -88,7 +78,6 @@ export function IngredientFormPage(): React.JSX.Element {
           Back
         </Button>
       </div>
-      <IngredientPreviewNotice />
       {unavailable ? (
         <Alert variant='destructive'>
           <AlertTitle>Editor unavailable</AlertTitle>
@@ -141,7 +130,7 @@ export function IngredientFormPage(): React.JSX.Element {
             onSubmit={save}
             onCancel={() => void navigate(returnTo)}
             isPending={isPending}
-            error={isIngredientsPreview ? null : integrationError}
+            error={null}
             onDirtyChange={guard.onDirtyChange}
           />
         </>

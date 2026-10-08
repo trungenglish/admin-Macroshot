@@ -3,20 +3,23 @@ import { z } from 'zod';
 import { getNutrientActionPolicy } from '@/features/nutrients/nutrient-policy';
 import { nutrientFormSchema } from '@/features/nutrients/nutrient.schema';
 import type { Nutrient } from '@/features/nutrients/nutrient.types';
-import { normalizeIngredientDecimal } from '../api/ingredient-adapter';
+import { normalizeIngredientDecimal } from '@/features/ingredients/api/ingredient-adapter';
 import type {
   IngredientApiError,
   IngredientTransport,
-} from '../api/ingredient-transport';
+} from '@/features/ingredients/api/ingredient-transport';
 import {
   getIngredientDeletePolicy,
   isSystemIngredient,
-} from '../ingredient-policy';
-import { ingredientFormSchema } from '../ingredient.schema';
-import type { Ingredient, IngredientSaveInput } from '../ingredient.types';
+} from '@/features/ingredients/ingredient-policy';
+import { ingredientFormSchema } from '@/features/ingredients/ingredient.schema';
+import type {
+  Ingredient,
+  IngredientSaveInput,
+} from '@/features/ingredients/ingredient.types';
 
-// This module is loaded only by the explicitly enabled development transport.
-// All state is in memory; reload or reset restores the original fixture set.
+// In-memory Ingredient and Nutrient transport fixtures used by tests only.
+// Reset restores the fixture set between test cases.
 let ingredients: Ingredient[] = [];
 let nutrients: Nutrient[] = [];
 let nextIngredientId = 102;
@@ -158,7 +161,7 @@ function applySave(
   };
 }
 
-export const previewIngredientTransport: IngredientTransport = {
+export const ingredientTransportFixture: IngredientTransport = {
   async list({ page, pageSize, search, unit }) {
     const matching = ingredients.filter(
       (item) =>
@@ -208,7 +211,7 @@ const nutrientPatchSchema = nutrientFormSchema
   .extend({ is_active: z.boolean().optional() });
 
 // Internal bridge used by the verified Nutrients Axios adapter; no injected registry.
-export const previewNutrients = {
+export const nutrientFixtures = {
   list() {
     return nutrients.map(readNutrient);
   },
@@ -267,7 +270,7 @@ export const previewNutrients = {
   },
 };
 
-export function resetIngredientsPreview(): void {
+export function resetIngredientFixtures(): void {
   const nutrientNames = [
     'Iron',
     'Calcium',
@@ -340,4 +343,4 @@ export function resetIngredientsPreview(): void {
   nextNutrientId = 15;
 }
 
-resetIngredientsPreview();
+resetIngredientFixtures();

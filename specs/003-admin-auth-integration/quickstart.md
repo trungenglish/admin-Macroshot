@@ -22,7 +22,7 @@ Set-Content -LiteralPath .env.local -Value 'VITE_API_URL=http://localhost:8000'
 pnpm dev
 ```
 
-Replace `http://localhost:8000` with the API origin for the active environment. Do not append the login path: the client adds `/api/v1/admin/login`. Restart the development server after changing `.env.local`.
+Replace `http://localhost:8000` with the API origin for the active environment. Do not append the login path: the client adds `/api/v1/auth/admin/login`. Restart the development server after changing `.env.local`.
 
 Open the URL printed by Vite, normally `http://localhost:5173`.
 
@@ -62,7 +62,7 @@ Expected:
 Expected:
 
 - Method is `POST`.
-- URL is `${VITE_API_URL}/api/v1/admin/login`.
+- URL is `${VITE_API_URL}/api/v1/auth/admin/login`.
 - Content type is JSON.
 - Body contains exactly the credential fields `username` and `password`, not `email`.
 - One submit action produces one request.
@@ -93,7 +93,7 @@ Expected:
 - Local storage contains `admin_token` equal to the returned access token.
 - Local storage contains no password, refresh token, user profile, status, or error record from this feature.
 - Console includes the exact message `Login Successful` without printing credentials or token values.
-- The current page does not navigate.
+- The browser navigates to `/admin/ingredients`.
 
 ### 5. API-provided authentication error
 

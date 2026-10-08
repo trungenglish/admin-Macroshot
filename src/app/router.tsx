@@ -26,6 +26,15 @@ export const appRouter = createBrowserRouter([
     },
     children: [
       {
+        path: 'users',
+        lazy: async () => {
+          const { UsersPage } =
+            await import('@/features/users/pages/UsersPage');
+
+          return { Component: UsersPage };
+        },
+      },
+      {
         path: 'ingredients',
         lazy: async () => {
           const { IngredientsPage } =

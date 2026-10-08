@@ -1,4 +1,8 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from '@reduxjs/toolkit';
 
 import {
   authenticateAdmin,
@@ -13,11 +17,20 @@ import type {
 
 export const ADMIN_TOKEN_STORAGE_KEY = 'admin_token';
 
-const initialState: AuthState = {
-  accessToken: null,
-  user: null,
-  status: 'idle',
-  error: null,
+const initialState = (): AuthState => {
+  let accessToken: string | null = null;
+  try {
+    accessToken = localStorage.getItem(ADMIN_TOKEN_STORAGE_KEY);
+  } catch {
+    // Treat unavailable browser storage as a signed-out session.
+  }
+
+  return {
+    accessToken,
+    user: null,
+    status: accessToken ? 'success' : 'idle',
+    error: null,
+  };
 };
 
 type AuthRootState = {
@@ -59,6 +72,12 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    restoreAdminSession(state, action: PayloadAction<string | null>) {
+      state.accessToken = action.payload;
+      state.user = null;
+      state.status = action.payload ? 'success' : 'idle';
+      state.error = null;
+    },
     clearAuthError(state) {
       state.error = null;
 
@@ -86,7 +105,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearAuthError } = authSlice.actions;
+export const { clearAuthError, restoreAdminSession } = authSlice.actions;
 
 export const selectAuthStatus = (state: AuthRootState) => state.auth.status;
 export const selectAuthError = (state: AuthRootState) => state.auth.error;

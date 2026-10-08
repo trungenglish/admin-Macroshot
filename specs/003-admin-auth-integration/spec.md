@@ -18,7 +18,7 @@ As a NutriPal administrator, I want to sign in with my username and password so 
 
 **Why this priority**: Real authentication replaces the current mock submission and delivers the feature's primary value.
 
-**Independent Test**: Manually submit credentials for a valid admin account and verify that one authentication attempt succeeds, the returned access credential and administrator profile become available to the application, the credential is retained locally, a development-visible success signal is recorded, and the page does not navigate.
+**Independent Test**: Submit credentials for a valid admin account and verify that one authentication attempt succeeds, the returned access credential and administrator profile become available to the application, the credential is retained locally, a development-visible success signal is recorded, and the browser navigates to `/admin/ingredients`.
 
 **Acceptance Scenarios**:
 

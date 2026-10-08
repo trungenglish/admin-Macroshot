@@ -6,8 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { nutrientsApi } from '@/features/nutrients/api/nutrients-api';
 import { apiClient } from '@/shared/api/api-client';
-import { resetIngredientsPreview } from '../dev/ingredients-preview';
-import { nutrientsPreviewAdapter } from '../dev/nutrients-preview-adapter';
+import { resetIngredientFixtures } from '@/test/fixtures/ingredient-transport.fixture';
+import { nutrientsApiFixtureAdapter } from '@/test/fixtures/nutrients-api.fixture-adapter';
 import type { Ingredient } from '../ingredient.types';
 import { IngredientForm, type IngredientFormProps } from './IngredientForm';
 
@@ -41,8 +41,8 @@ const ingredient: Ingredient = {
 const originalAdapter = apiClient.defaults.adapter;
 const disposeStores: Array<() => void> = [];
 beforeEach(() => {
-  resetIngredientsPreview();
-  apiClient.defaults.adapter = nutrientsPreviewAdapter;
+  resetIngredientFixtures();
+  apiClient.defaults.adapter = nutrientsApiFixtureAdapter;
 });
 afterEach(() => {
   cleanup();

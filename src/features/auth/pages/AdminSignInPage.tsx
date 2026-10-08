@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { AdminSignInBrand } from '@/features/auth/components/AdminSignInBrand';
 import { Button } from '@/components/ui/button';
@@ -29,9 +30,12 @@ import {
   selectAuthStatus,
 } from '@/features/auth/store/auth-slice';
 import type { AdminSignInCredentials } from '@/features/auth/auth.types';
+import { getAdminReturnTo } from '@/features/auth/route-redirect';
 
 export function AdminSignInPage() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const authError = useAppSelector(selectAuthError);
   const authStatus = useAppSelector(selectAuthStatus);
   const [username, setUsername] = useState('');
@@ -78,6 +82,7 @@ export function AdminSignInPage() {
     try {
       await dispatch(loginAdmin(credentials)).unwrap();
       console.log('Login Successful');
+      navigate(getAdminReturnTo(location.state), { replace: true });
     } catch {
       // The Redux error state is rendered below for a recoverable retry.
     }

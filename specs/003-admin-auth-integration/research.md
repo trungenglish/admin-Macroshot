@@ -32,14 +32,14 @@
 
 ## 3. Login Endpoint and Wire Contract
 
-**Decision**: Use `POST /api/v1/admin/login` exactly as requested, with JSON `{ "username": string, "password": string }`. Expect the repository-documented success envelope shape `message` plus `data`, map `data.access_token` to `accessToken`, and map `data.user` to the normalized administrator profile. Additional response fields such as `refresh_token`, `token_type`, and `expires_in` may be present but are not stored by this feature.
+**Decision**: Use `POST /api/v1/auth/admin/login` exactly as requested, with JSON `{ "username": string, "password": string }`. Expect the repository-documented success envelope shape `message` plus `data`, map `data.access_token` to `accessToken`, and map `data.user` to the normalized administrator profile. Additional response fields such as `refresh_token`, `token_type`, and `expires_in` may be present but are not stored by this feature.
 
 **Rationale**: The requester supplied an exact route and payload, which overrides older repository documentation. The repository's admin-auth documentation and existing docs-site client agree on the success envelope and `access_token` field, providing a grounded response model rather than a guessed camelCase response.
 
 **Alternatives considered**:
 
 - `/auth/admin/login`: rejected because it is a legacy route shown in the architecture document, not the route requested for this feature.
-- `/api/v1/auth/admin/login`: rejected because it appears in an existing docs-site implementation but conflicts with the explicit feature requirement.
+- `/api/v1/admin/login`: rejected because the backend now exposes the authentication route under `/api/v1/auth`.
 - Storing the raw response envelope in Redux: rejected because it couples UI state to the transport schema and retains unused refresh data.
 
 **Repository evidence**: [Admin authentication contract](../../docs-site/docs/backend/architecture/auth/auth-admin-api.md), [Existing docs-site login client](../../docs-site/src/pages/index.tsx)
@@ -97,7 +97,7 @@
 
 ## 8. Verification Strategy
 
-**Decision**: Add no Unit or E2E test files. Use TypeScript checking, linting, a production build, and repeatable manual scenarios covering validation, request shape, loading, duplicate prevention, success persistence, response mapping, server errors, generic errors, and no navigation.
+**Decision**: Cover the API endpoint and successful-login navigation with focused Vitest tests. Also use TypeScript checking, linting, a production build, and repeatable manual scenarios covering validation, request shape, loading, duplicate prevention, success persistence, response mapping, server errors, generic errors, and navigation to `/admin/ingredients`.
 
 **Rationale**: This follows the explicit test exclusion while still defining evidence needed before completion. The project constitution is an unfilled template and imposes no contrary active test gate.
 

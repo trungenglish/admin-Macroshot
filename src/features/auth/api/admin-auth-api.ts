@@ -8,7 +8,7 @@ import type {
   AdminUser,
 } from '@/features/auth/auth.types';
 
-export const ADMIN_LOGIN_PATH = '/api/v1/admin/login';
+export const ADMIN_LOGIN_PATH = '/api/v1/auth/admin/login';
 export const GENERIC_ADMIN_SIGN_IN_ERROR =
   'Unable to sign in. Please try again.';
 

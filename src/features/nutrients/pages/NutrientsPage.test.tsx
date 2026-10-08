@@ -138,15 +138,8 @@ describe('NutrientsPage', () => {
     });
     expect(within(overview).getByText('Total nutrients')).toBeInTheDocument();
     expect(within(overview).getByText('30')).toBeInTheDocument();
-    expect(within(overview).getByText('Active')).toBeInTheDocument();
-    expect(within(overview).getByText('24')).toBeInTheDocument();
-    expect(within(overview).getByText('Inactive')).toBeInTheDocument();
-    expect(within(overview).getByText('6')).toBeInTheDocument();
-    expect(
-      within(overview).getByRole('progressbar', {
-        name: 'Active nutrient ratio',
-      }),
-    ).toHaveAttribute('aria-valuenow', '80');
+    expect(within(overview).queryByText('Active')).not.toBeInTheDocument();
+    expect(within(overview).queryByText('Inactive')).not.toBeInTheDocument();
     expect(hooks.useGetNutrientsQuery).toHaveBeenCalledTimes(1);
   });
 
@@ -161,7 +154,7 @@ describe('NutrientsPage', () => {
     });
     expect(
       screen.getAllByRole('columnheader').map((cell) => cell.textContent),
-    ).toEqual(['ID', 'Name', 'Unit', 'Ingredients', 'Status', 'Actions']);
+    ).toEqual(['ID', 'Name', 'Unit', 'Ingredients', 'Actions']);
     expect(screen.getByText('30 nutrients')).toBeInTheDocument();
     expect(document.querySelector('[data-slot="table-container"]')).toHaveClass(
       'overflow-x-auto',
@@ -180,7 +173,7 @@ describe('NutrientsPage', () => {
     );
   });
 
-  it('resets page when unit, status and page size change and retains other filters', async () => {
+  it('resets page when unit and page size change and retains other filters', async () => {
     renderPage('/admin/nutrients?page=3&search=iron');
     await userEvent.click(
       screen.getByRole('combobox', { name: 'Unit filter' }),
@@ -193,17 +186,6 @@ describe('NutrientsPage', () => {
       unit: 'mcg',
     });
     await userEvent.click(
-      screen.getByRole('combobox', { name: 'Status filter' }),
-    );
-    await userEvent.click(screen.getByRole('option', { name: 'Inactive' }));
-    expect(hooks.useGetNutrientsQuery).toHaveBeenLastCalledWith({
-      page: 1,
-      pageSize: 10,
-      search: 'iron',
-      unit: 'mcg',
-      isActive: false,
-    });
-    await userEvent.click(
       screen.getByRole('combobox', { name: 'Rows per page' }),
     );
     await userEvent.click(screen.getByRole('option', { name: '25' }));
@@ -212,7 +194,6 @@ describe('NutrientsPage', () => {
       pageSize: 25,
       search: 'iron',
       unit: 'mcg',
-      isActive: false,
     });
   });
 
@@ -260,19 +241,16 @@ describe('NutrientsPage', () => {
       name: 'Nutrient overview',
     });
     expect(overview).toBeInTheDocument();
-    expect(within(overview).getAllByText('Loading overview…')).toHaveLength(3);
-    expect(
-      within(overview).queryByText('Overview unavailable'),
-    ).not.toBeInTheDocument();
+    expect(within(overview).getByText('Total nutrients')).toBeInTheDocument();
     expect(
       within(
         screen.getByRole('region', { name: 'Nutrient results' }),
       ).getByRole('status'),
     ).toHaveTextContent('Loading nutrients');
     expect(document.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(
-      33,
+      26,
     );
-    expect(screen.getAllByRole('columnheader')).toHaveLength(6);
+    expect(screen.getAllByRole('columnheader')).toHaveLength(5);
     expect(screen.queryByText('No nutrients yet')).not.toBeInTheDocument();
   });
 
@@ -327,9 +305,7 @@ describe('NutrientsPage', () => {
     hooks.useGetNutrientsQuery.mockReturnValue(
       queryState({ data: empty, currentData: empty }),
     );
-    renderPage(
-      '/admin/nutrients?page=3&pageSize=25&search=none&unit=IU&isActive=false',
-    );
+    renderPage('/admin/nutrients?page=3&pageSize=25&search=none&unit=IU');
     expect(screen.getByText('No matching nutrients')).toBeInTheDocument();
     await userEvent.click(
       screen.getByRole('button', { name: 'Clear filters' }),
@@ -342,16 +318,13 @@ describe('NutrientsPage', () => {
   });
 
   it('makes active filters visible and clears them from the toolbar', async () => {
-    renderPage('/admin/nutrients?search=iron&unit=mg&isActive=false');
+    renderPage('/admin/nutrients?search=iron&unit=mg');
 
     const activeFilters = screen.getByRole('region', {
       name: 'Active nutrient filters',
     });
     expect(within(activeFilters).getByText('Search: iron')).toBeInTheDocument();
     expect(within(activeFilters).getByText('Unit: mg')).toBeInTheDocument();
-    expect(
-      within(activeFilters).getByText('Status: Inactive'),
-    ).toBeInTheDocument();
 
     await userEvent.click(
       within(activeFilters).getByRole('button', { name: 'Clear filters' }),
@@ -461,44 +434,6 @@ describe('NutrientsPage', () => {
     expect(screen.getByRole('dialog')).toHaveAccessibleName('Create nutrient');
   });
 
-  it.each([
-    [true, 'Deactivate', 'Nutrient deactivated.'],
-    [false, 'Reactivate', 'Nutrient reactivated.'],
-  ])(
-    'patches only status for isActive=%s after confirmation',
-    async (isActive, action, message) => {
-      const data = { ...result, items: [{ ...iron, isActive }] };
-      hooks.useGetNutrientsQuery.mockReturnValue(
-        queryState({ data, currentData: data }),
-      );
-      renderPage('/admin/nutrients');
-      await rowAction('Iron', action);
-      expect(update).not.toHaveBeenCalled();
-      await userEvent.click(screen.getByRole('button', { name: action }));
-      await waitFor(() =>
-        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument(),
-      );
-      expect(update).toHaveBeenCalledWith({ id: 1, isActive: !isActive });
-      expect(hooks.success).toHaveBeenCalledWith(message);
-    },
-  );
-
-  it('retains a failed status dialog and existing row', async () => {
-    update.mockReturnValue({
-      unwrap: () => Promise.reject({ message: 'Status could not be updated.' }),
-    });
-    renderPage('/admin/nutrients');
-    await rowAction('Iron', 'Deactivate');
-    await userEvent.click(screen.getByRole('button', { name: 'Deactivate' }));
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Status could not be updated.',
-    );
-    expect(
-      screen.getByRole('cell', { name: 'Iron', hidden: true }),
-    ).toBeInTheDocument();
-    expect(hooks.success).not.toHaveBeenCalled();
-  });
-
   it('creates a nutrient through the form and closes only after success', async () => {
     renderPage('/admin/nutrients');
     await userEvent.click(screen.getByRole('button', { name: 'Add nutrient' }));
@@ -585,26 +520,6 @@ describe('NutrientsPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     expect(deleteNutrient).not.toHaveBeenCalled();
-  });
-
-  it('updates an open status confirmation from refreshed server status', async () => {
-    const router = renderPage('/admin/nutrients');
-    await rowAction('Iron', 'Deactivate');
-    const refreshed = {
-      ...result,
-      items: [{ ...iron, isActive: false }, zinc],
-    };
-    hooks.useGetNutrientsQuery.mockReturnValue(
-      queryState({ data: refreshed, currentData: refreshed }),
-    );
-    await act(async () => {
-      await router.navigate('/admin/nutrients');
-    });
-    expect(screen.getByRole('alertdialog')).toHaveAccessibleName(
-      'Reactivate Iron?',
-    );
-    await userEvent.click(screen.getByRole('button', { name: 'Reactivate' }));
-    expect(update).toHaveBeenCalledWith({ id: 1, isActive: true });
   });
 
   it('allows another page interaction after an explicitly cancelled confirmation', async () => {

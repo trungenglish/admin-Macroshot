@@ -79,7 +79,7 @@ export function IngredientDetailsDialog({
             </AlertDescription>
           </Alert>
         ) : details ? (
-          <div className='flex flex-col gap-4'>
+          <div className='flex flex-col gap-5'>
             {isFetching && (
               <div
                 role='status'
@@ -93,12 +93,14 @@ export function IngredientDetailsDialog({
               <img
                 src={details.imageUrl}
                 alt={details.name}
-                className='max-h-48 w-full object-contain'
+                className='max-h-48 w-full rounded-lg border bg-muted/20 object-contain p-2'
               />
             ) : (
-              <p>No image available.</p>
+              <p className='rounded-lg border border-dashed bg-muted/20 p-6 text-center text-sm text-muted-foreground'>
+                No image available.
+              </p>
             )}
-            <dl className='grid grid-cols-2 gap-3'>
+            <dl className='grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-x-4 gap-y-0 overflow-hidden rounded-lg border text-sm [&>dd]:border-b [&>dd]:py-2.5 [&>dd]:font-medium [&>dt]:border-b [&>dt]:bg-muted/35 [&>dt]:px-3 [&>dt]:py-2.5 [&>dt]:text-muted-foreground [&>*:nth-last-child(-n+2)]:border-b-0'>
               <dt>ID</dt>
               <dd>{details.id}</dd>
               <dt>Name</dt>
@@ -122,9 +124,9 @@ export function IngredientDetailsDialog({
             </dl>
             <section
               aria-label='Nutrients per 100g'
-              className='flex flex-col gap-3'
+              className='flex flex-col gap-3 border-t pt-4'
             >
-              <h2>Nutrients per 100g</h2>
+              <h2 className='text-sm font-semibold'>Nutrients per 100g</h2>
               {details.nutrientLinks === null ? (
                 <Alert>
                   <AlertDescription>

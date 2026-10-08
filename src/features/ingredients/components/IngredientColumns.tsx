@@ -52,6 +52,7 @@ export function createIngredientColumns(
         <NutritionValue
           value={row.original.proPer100g}
           unit='g'
+          tone='protein'
         />
       ),
     },
@@ -62,6 +63,7 @@ export function createIngredientColumns(
         <NutritionValue
           value={row.original.carbPer100g}
           unit='g'
+          tone='carbs'
         />
       ),
     },
@@ -72,6 +74,7 @@ export function createIngredientColumns(
         <NutritionValue
           value={row.original.fatPer100g}
           unit='g'
+          tone='fat'
         />
       ),
     },

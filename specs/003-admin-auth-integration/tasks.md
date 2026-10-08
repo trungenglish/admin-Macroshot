@@ -33,7 +33,7 @@
 
 - [X] T003 [P] Define `AdminSignInCredentials`, wire-response, normalized `AdminUser`, `AuthStatus`, and `AuthState` types from the data model in `nutripal-admin/src/types/auth.ts`
 - [X] T004 [P] Create the shared Axios instance with required `import.meta.env.VITE_API_URL`, JSON defaults, and a 10-second timeout in `nutripal-admin/src/lib/axios.ts`
-- [X] T005 Implement the typed `POST /api/v1/admin/login` adapter, exact `{ username, password }` body, success-envelope validation, and snake_case-to-camelCase mapping per `specs/003-admin-auth-integration/contracts/admin-login.openapi.yaml` in `nutripal-admin/src/services/admin-auth-api.ts`
+- [X] T005 Implement the typed `POST /api/v1/auth/admin/login` adapter, exact `{ username, password }` body, success-envelope validation, and snake_case-to-camelCase mapping per `specs/003-admin-auth-integration/contracts/admin-login.openapi.yaml` in `nutripal-admin/src/services/admin-auth-api.ts`
 - [X] T006 Create `loginAdmin`, the `idle/loading/success/error` lifecycle, `accessToken/user/error` state, and pre-fulfillment `admin_token` persistence with storage-failure rejection in `nutripal-admin/src/store/slices/authSlice.ts`
 - [X] T007 Configure the `auth` reducer and export `store`, `RootState`, `AppStore`, and `AppDispatch` types in `nutripal-admin/src/store/index.ts`
 - [X] T008 [P] Create pre-typed `useAppDispatch`, `useAppSelector`, and `useAppStore` hooks in `nutripal-admin/src/store/hooks.ts`
@@ -45,14 +45,14 @@
 
 ## Phase 3: User Story 1 - Authenticate with Admin Credentials (Priority: P1) MVP
 
-**Goal**: Replace mock submission with one real authentication attempt that stores normalized auth state, persists the access token, logs success, and does not navigate.
+**Goal**: Replace mock submission with one real authentication attempt that stores normalized auth state, persists the access token, logs success, and navigates to the main Ingredients page.
 
-**Independent Test**: Submit valid administrator credentials and verify one request is sent, Redux contains the returned access token and user profile, `admin_token` is persisted, Console records exactly `Login Successful` without sensitive values, and the page remains in place.
+**Independent Test**: Submit valid administrator credentials and verify one request is sent, Redux contains the returned access token and user profile, `admin_token` is persisted, Console records exactly `Login Successful` without sensitive values, and the browser navigates to `/admin/ingredients`.
 
 ### Implementation for User Story 1
 
 - [X] T010 [US1] Replace the mock submit branch with typed `loginAdmin({ username, password })` dispatch after existing client validation in `nutripal-admin/src/pages/AdminSignInPage.tsx`
-- [X] T011 [US1] Await the dispatched action with `.unwrap()`, log exactly `Login Successful` only on fulfillment, suppress credential/token logging, and keep success navigation absent in `nutripal-admin/src/pages/AdminSignInPage.tsx`
+- [X] T011 [US1] Await the dispatched action with `.unwrap()`, log exactly `Login Successful` only on fulfillment, suppress credential/token logging, and navigate to `/admin/ingredients` in `nutripal-admin/src/pages/AdminSignInPage.tsx`
 
 **Checkpoint**: Valid credentials complete the primary real-authentication flow and satisfy the MVP without navigation.
 

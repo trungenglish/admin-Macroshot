@@ -131,7 +131,7 @@ export function NutrientFormDialog({
           aria-busy={isSubmitting}
           onSubmit={handleSubmit(submit)}
         >
-          <FieldGroup>
+          <FieldGroup className='gap-5'>
             <Field
               data-invalid={Boolean(errors.name)}
               data-disabled={isSubmitting}
@@ -200,7 +200,7 @@ export function NutrientFormDialog({
                 <AlertDescription>{requestError}</AlertDescription>
               </Alert>
             )}
-            <DialogFooter>
+            <DialogFooter className='border-t pt-4'>
               <DialogClose asChild>
                 <Button
                   type='button'

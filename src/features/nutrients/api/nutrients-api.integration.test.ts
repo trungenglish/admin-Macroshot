@@ -56,6 +56,49 @@ afterEach(() => {
 });
 
 describe('nutrient endpoint/store integration', () => {
+  it('unwraps the production list envelope and defaults omitted display metadata', async () => {
+    vi.spyOn(apiClient, 'request').mockResolvedValue(
+      response({
+        success: true,
+        data: {
+          items: [{ id: 7, name: 'Iron', unit: 'mg' }],
+          meta: {
+            total: 1,
+            skip: 0,
+            limit: 10,
+            count: 1,
+            total_pages: 1,
+            current_page: 1,
+            has_next: false,
+            has_prev: false,
+          },
+        },
+        message: 'OK',
+        timestamp: '2026-10-03T00:00:00Z',
+      }),
+    );
+    const store = createTestStore();
+    const subscription = store.dispatch(
+      nutrientsApi.endpoints.getNutrients.initiate(firstPage),
+    );
+    cleanup.push(() => subscription.unsubscribe());
+
+    await expect(subscription.unwrap()).resolves.toEqual({
+      items: [
+        {
+          id: 7,
+          name: 'Iron',
+          unit: 'mg',
+          isActive: true,
+          ingredientCount: 0,
+        },
+      ],
+      total: 1,
+      page: 1,
+      pageSize: 10,
+    });
+  });
+
   // Break caught: removing token forwarding or emitting a bearer header for null.
   it.each([
     {
@@ -86,7 +129,7 @@ describe('nutrient endpoint/store integration', () => {
       });
       expect(requests).toEqual([
         {
-          url: '/nutrients/7',
+          url: '/api/v1/nutrients/7',
           method: 'GET',
           data: undefined,
           params: undefined,
@@ -109,9 +152,7 @@ describe('nutrient endpoint/store integration', () => {
       params: {
         skip: 50,
         limit: 25,
-        search: 'iron',
-        unit: 'mg',
-        is_active: false,
+        query: 'iron',
       },
       page: 3,
       pageSize: 25,
@@ -152,7 +193,7 @@ describe('nutrient endpoint/store integration', () => {
       });
       expect(requests).toEqual([
         {
-          url: '/nutrients',
+          url: '/api/v1/nutrients/',
           method: 'GET',
           data: undefined,
           params,
@@ -189,7 +230,7 @@ describe('nutrient endpoint/store integration', () => {
     });
     expect(requests).toEqual([
       {
-        url: '/nutrients/7',
+        url: '/api/v1/nutrients/7',
         method: 'PATCH',
         data: { name: 'Iron updated', unit: 'mg', is_active: false },
         params: undefined,
@@ -277,9 +318,21 @@ describe('nutrient endpoint/store integration', () => {
     expect(
       requests.map(({ url, method, params }) => ({ url, method, params })),
     ).toEqual([
-      { url: '/nutrients', method: 'GET', params: { skip: 0, limit: 10 } },
-      { url: '/nutrients/7', method: 'DELETE', params: undefined },
-      { url: '/nutrients', method: 'GET', params: { skip: 0, limit: 10 } },
+      {
+        url: '/api/v1/nutrients/',
+        method: 'GET',
+        params: { skip: 0, limit: 10 },
+      },
+      {
+        url: '/api/v1/nutrients/7',
+        method: 'DELETE',
+        params: undefined,
+      },
+      {
+        url: '/api/v1/nutrients/',
+        method: 'GET',
+        params: { skip: 0, limit: 10 },
+      },
     ]);
   });
 });

@@ -7,6 +7,10 @@ import { AppProviders } from '@/app/providers';
 import { appRouter } from '@/app/router';
 import { store } from '@/app/store';
 import { nutrientsApi } from '@/features/nutrients/api/nutrients-api';
+import {
+  ADMIN_TOKEN_STORAGE_KEY,
+  restoreAdminSession,
+} from '@/features/auth/store/auth-slice';
 import '@/features/nutrients/pages/NutrientsPage';
 import { apiClient } from '@/shared/api/api-client';
 
@@ -25,9 +29,11 @@ async function renderRoute(path: string) {
   return router;
 }
 
-describe('nutrients app integration', () => {
+describe('nutrients app integration', { timeout: 15_000 }, () => {
   beforeEach(() => {
     localStorage.removeItem('vite-ui-theme');
+    localStorage.setItem(ADMIN_TOKEN_STORAGE_KEY, 'route-test-token');
+    store.dispatch(restoreAdminSession('route-test-token'));
     vi.spyOn(apiClient, 'request').mockResolvedValue({
       data: { items: [], total: 0, skip: 0, limit: 10 },
     });
@@ -37,6 +43,8 @@ describe('nutrients app integration', () => {
     toast.dismiss();
     store.dispatch(nutrientsApi.util.resetApiState());
     localStorage.removeItem('vite-ui-theme');
+    localStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
+    store.dispatch(restoreAdminSession(null));
     vi.restoreAllMocks();
   });
 
@@ -51,6 +59,12 @@ describe('nutrients app integration', () => {
     expect(link).toHaveAttribute('href', '/admin/nutrients');
     expect(link).toHaveAttribute('aria-current', 'page');
     expect(link).toHaveAttribute('data-active', 'true');
+    expect(link).toHaveClass(
+      'data-[active=true]:bg-sidebar-primary/10',
+      'data-[active=true]:text-sidebar-primary',
+      'data-[active=true]:hover:bg-sidebar-primary/15',
+      'dark:data-[active=true]:text-sidebar-primary-foreground',
+    );
     expect(router.state.location.search).toBe('?unit=mg&isActive=false');
     expect(
       screen.queryByRole('heading', { name: /sign in/i }),

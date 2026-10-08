@@ -4,17 +4,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nutrientsApi } from '@/features/nutrients/api/nutrients-api';
 import { apiClient } from '@/shared/api/api-client';
 import {
-  previewIngredientTransport as preview,
-  resetIngredientsPreview,
-} from '../dev/ingredients-preview';
-import { nutrientsPreviewAdapter } from '../dev/nutrients-preview-adapter';
+  ingredientTransportFixture as preview,
+  resetIngredientFixtures,
+} from '@/test/fixtures/ingredient-transport.fixture';
+import { nutrientsApiFixtureAdapter } from '@/test/fixtures/nutrients-api.fixture-adapter';
 import type { IngredientSaveInput } from '../ingredient.types';
 import { ingredientsApi } from './ingredients-api';
 
 vi.mock('./ingredient-transport', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./ingredient-transport')>()),
   getIngredientTransport: async () =>
-    (await import('../dev/ingredients-preview')).previewIngredientTransport,
+    (await import('@/test/fixtures/ingredient-transport.fixture'))
+      .ingredientTransportFixture,
 }));
 
 const query = { page: 1, pageSize: 10, search: 'Test' };
@@ -51,8 +52,8 @@ function createTestStore() {
   return store;
 }
 beforeEach(() => {
-  resetIngredientsPreview();
-  apiClient.defaults.adapter = nutrientsPreviewAdapter;
+  resetIngredientFixtures();
+  apiClient.defaults.adapter = nutrientsApiFixtureAdapter;
 });
 afterEach(() => {
   cleanup.reverse().forEach((dispose) => dispose());

@@ -1,4 +1,3 @@
-import { ThemeToggle } from '@/shared/theme/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { DownloadIcon, SearchIcon, Settings2Icon } from 'lucide-react';
 
@@ -15,8 +14,6 @@ export const PageHeader = () => {
 
       <div className='flex gap-3'>
         <div className='flex max-lg:hidden'>
-          <ThemeToggle />
-
           <Button
             variant='ghost'
             size='icon'

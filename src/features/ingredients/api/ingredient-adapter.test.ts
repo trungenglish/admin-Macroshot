@@ -94,8 +94,14 @@ describe('supplied Ingredient response adapter', () => {
     },
   );
 
-  // Break caught: fractional/unsafe integer macros get silently coerced or rounded.
-  it.each([0.1, -1, Number.MAX_SAFE_INTEGER + 1, '1'])(
+  it('preserves non-negative decimal macro values', () => {
+    expect(normalizeIngredient({ ...dto, fat_per_100g: 3.6 }).fatPer100g).toBe(
+      3.6,
+    );
+  });
+
+  // Break caught: invalid macros get silently coerced or accepted.
+  it.each([-1, Number.POSITIVE_INFINITY, Number.NaN, '1'])(
     'rejects invalid macro %s',
     (value) => {
       expect(() =>

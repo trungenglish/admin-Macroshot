@@ -1,4 +1,5 @@
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import {
   flexRender,
@@ -51,6 +52,15 @@ export function NutrientTable({
   onPageChange,
   onPageSizeChange,
 }: NutrientTableProps) {
+  const [mobileLayout, setMobileLayout] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 640,
+  );
+  useEffect(() => {
+    const updateLayout = () => setMobileLayout(window.innerWidth < 640);
+    window.addEventListener('resize', updateLayout);
+    return () => window.removeEventListener('resize', updateLayout);
+  }, []);
+
   // TanStack Table manages a mutable table instance and cannot be React Compiler memoized.
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -65,72 +75,131 @@ export function NutrientTable({
 
   return (
     <div className='flex min-w-0 flex-col gap-4'>
-      <div className='overflow-hidden rounded-lg border'>
-        <Table
-          aria-label='Nutrients'
-          className='min-w-[48rem]'
-        >
-          <TableHeader className='bg-muted/50'>
-            {table.getHeaderGroups().map((group) => (
-              <TableRow key={group.id}>
-                {group.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    scope='col'
-                    className='h-11 px-4'
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {data.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className='h-24 px-4 text-center text-muted-foreground'
-                >
-                  No nutrients on this page.
-                </TableCell>
-              </TableRow>
-            )}
-            {table.getRowModel().rows.map((row) => (
-              <TableRow
+      {mobileLayout ? (
+        <div className='grid gap-3'>
+          {table.getRowModel().rows.map((row) => {
+            const cells = Object.fromEntries(
+              row.getVisibleCells().map((cell) => [cell.column.id, cell]),
+            );
+            const render = (id: string) => {
+              const cell = cells[id];
+              return cell
+                ? flexRender(cell.column.columnDef.cell, cell.getContext())
+                : null;
+            };
+
+            return (
+              <article
                 key={row.id}
-                data-status={row.original.isActive ? 'active' : 'inactive'}
-                className='data-[status=inactive]:bg-muted/20'
+                className='rounded-lg border bg-card p-4'
               >
-                {row.getVisibleCells().map((cell) => (
+                <div className='flex min-w-0 items-start justify-between gap-3 border-b pb-3'>
+                  <div className='min-w-0'>
+                    <div className='truncate'>{render('name')}</div>
+                    <div className='mt-1 flex items-center gap-2'>
+                      {render('id')}
+                      {render('unit')}
+                    </div>
+                  </div>
+                  {render('actions')}
+                </div>
+                <dl className='grid gap-3 pt-3 text-sm'>
+                  <div className='flex items-center justify-between gap-3'>
+                    <dt className='text-xs text-muted-foreground'>
+                      Ingredients
+                    </dt>
+                    <dd>{render('ingredientCount')}</dd>
+                  </div>
+                </dl>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <div className='overflow-x-auto rounded-lg border'>
+          <Table
+            aria-label='Nutrients'
+            className='min-w-[48rem]'
+          >
+            <TableHeader className='bg-muted/35'>
+              {table.getHeaderGroups().map((group) => (
+                <TableRow key={group.id}>
+                  {group.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      scope='col'
+                      className={
+                        header.column.id === 'id'
+                          ? 'sticky left-0 z-20 h-10 bg-muted/35 px-3 text-xs font-medium uppercase tracking-wide'
+                          : header.column.id === 'name'
+                            ? 'sticky left-12 z-10 h-10 bg-muted/35 px-3 text-xs font-medium uppercase tracking-wide'
+                            : 'h-10 px-3 text-xs font-medium uppercase tracking-wide'
+                      }
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {data.length === 0 && (
+                <TableRow>
                   <TableCell
-                    key={cell.id}
-                    className='h-14 px-4'
+                    colSpan={columns.length}
+                    className='h-24 px-4 text-center text-muted-foreground'
                   >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    No nutrients on this page.
                   </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+                </TableRow>
+              )}
+              {table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  className='hover:bg-transparent'
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      className={
+                        cell.column.id === 'id'
+                          ? 'sticky left-0 z-20 h-13 bg-card px-3'
+                          : cell.column.id === 'name'
+                            ? 'sticky left-12 z-10 h-13 bg-card px-3'
+                            : 'h-13 px-3'
+                      }
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+      <div className='flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between'>
         <Field
           orientation='horizontal'
-          className='w-auto'
+          className='w-full sm:w-auto'
         >
           <FieldLabel htmlFor='nutrient-page-size'>Rows per page</FieldLabel>
           <Select
             value={String(pageSize)}
             onValueChange={(value) => onPageSizeChange(Number(value))}
           >
-            <SelectTrigger id='nutrient-page-size'>
+            <SelectTrigger
+              id='nutrient-page-size'
+              className='w-20'
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -148,7 +217,7 @@ export function NutrientTable({
           </Select>
         </Field>
         <Pagination
-          className='mx-0 w-auto'
+          className='mx-0 w-full justify-between sm:w-auto'
           aria-label='Nutrient pagination'
         >
           <PaginationContent>

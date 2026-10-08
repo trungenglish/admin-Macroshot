@@ -56,7 +56,6 @@ import { DeleteNutrientDialog } from '../components/DeleteNutrientDialog';
 import { createNutrientColumns } from '../components/NutrientColumns';
 import { NutrientDetailsDialog } from '../components/NutrientDetailsDialog';
 import { NutrientFormDialog } from '../components/NutrientFormDialog';
-import { NutrientStatusDialog } from '../components/NutrientStatusDialog';
 import { NutrientSummaryCards } from '../components/NutrientSummaryCards';
 import { NutrientTable } from '../components/NutrientTable';
 import { NutrientTableSkeleton } from '../components/NutrientTableSkeleton';
@@ -74,7 +73,7 @@ import {
 } from '../nutrient.types';
 
 type DialogSelection = {
-  type: 'create' | 'edit' | 'details' | 'status' | 'delete' | null;
+  type: 'create' | 'edit' | 'details' | 'delete' | null;
   nutrient: Nutrient | null;
 };
 
@@ -90,7 +89,7 @@ export function NutrientsPage() {
     refetch,
   } = useGetNutrientsQuery(query);
   const [createNutrient] = useCreateNutrientMutation();
-  const [updateNutrient, updateState] = useUpdateNutrientMutation();
+  const [updateNutrient] = useUpdateNutrientMutation();
   const [deleteNutrient, deleteState] = useDeleteNutrientMutation();
   const [selection, setSelection] = useState<DialogSelection>({
     type: null,
@@ -99,9 +98,7 @@ export function NutrientsPage() {
   const currentNutrient =
     result?.items.find((nutrient) => nutrient.id === selection.nutrient?.id) ??
     selection.nutrient;
-  const hasFilters = Boolean(
-    query.search || query.unit || query.isActive !== undefined,
-  );
+  const hasFilters = Boolean(query.search || query.unit);
   const loading = isLoading || (isFetching && !result);
 
   const columns = useMemo(
@@ -109,8 +106,6 @@ export function NutrientsPage() {
       createNutrientColumns({
         onView: (nutrient) => setSelection({ type: 'details', nutrient }),
         onEdit: (nutrient) => setSelection({ type: 'edit', nutrient }),
-        onToggleStatus: (nutrient) =>
-          setSelection({ type: 'status', nutrient }),
         onDelete: (nutrient) => {
           if (getNutrientActionPolicy(nutrient).canDelete)
             setSelection({ type: 'delete', nutrient });
@@ -128,7 +123,6 @@ export function NutrientsPage() {
       page: 1,
       search: '',
       unit: undefined,
-      isActive: undefined,
     });
   }
 
@@ -144,17 +138,6 @@ export function NutrientsPage() {
       await updateNutrient({ id: selection.nutrient.id, ...values }).unwrap();
       toast.success('Nutrient updated.');
     }
-  }
-
-  async function confirmStatus(nutrient: Nutrient) {
-    const latest = currentNutrient ?? nutrient;
-    await updateNutrient({
-      id: latest.id,
-      isActive: !latest.isActive,
-    }).unwrap();
-    toast.success(
-      latest.isActive ? 'Nutrient deactivated.' : 'Nutrient reactivated.',
-    );
   }
 
   async function confirmDelete(nutrient: Nutrient) {
@@ -179,11 +162,14 @@ export function NutrientsPage() {
   const addNutrient = () => setSelection({ type: 'create', nutrient: null });
 
   return (
-    <div className='flex min-w-0 flex-col gap-6'>
+    <div className='flex min-w-0 flex-col gap-5'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink asChild>
+            <BreadcrumbLink
+              asChild
+              className='inline-flex min-h-8 items-center'
+            >
               <Link to='/admin'>Admin</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -193,20 +179,25 @@ export function NutrientsPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className='flex flex-wrap items-center justify-between gap-4'>
-        <div className='flex flex-col gap-2'>
+      <div className='flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-end sm:justify-between'>
+        <div className='flex min-w-0 flex-col gap-1.5'>
           <div className='flex items-center gap-3'>
-            <h1 className='text-2xl font-semibold text-balance'>Nutrients</h1>
+            <h1 className='text-2xl font-semibold tracking-tight text-balance'>
+              Nutrients
+            </h1>
             {result && (
               <Badge variant='secondary'>{result.total} nutrients</Badge>
             )}
           </div>
-          <p className='text-muted-foreground'>
+          <p className='max-w-2xl text-sm text-muted-foreground'>
             Manage nutrient names, measurement units, and availability for
             ingredient associations.
           </p>
         </div>
-        <Button onClick={addNutrient}>
+        <Button
+          onClick={addNutrient}
+          className='dark:text-background'
+        >
           <PlusIcon
             aria-hidden='true'
             data-icon='inline-start'
@@ -218,8 +209,8 @@ export function NutrientsPage() {
         summary={result?.summary}
         loading={loading}
       />
-      <Card className='min-w-0 overflow-hidden'>
-        <CardHeader className='border-b'>
+      <Card className='min-w-0 gap-0 overflow-hidden py-0 shadow-none'>
+        <CardHeader className='border-b px-4 py-4 sm:px-5'>
           <CardTitle>Nutrient catalog</CardTitle>
           <CardDescription>
             Search, filter, and manage every nutrient from one place.
@@ -230,8 +221,8 @@ export function NutrientsPage() {
             </CardAction>
           )}
         </CardHeader>
-        <CardContent className='flex min-w-0 flex-col gap-5'>
-          <FieldGroup className='grid gap-4 md:grid-cols-[minmax(0,1fr)_10rem_10rem]'>
+        <CardContent className='flex min-w-0 flex-col gap-4 px-4 py-4 sm:px-5'>
+          <FieldGroup className='grid gap-3 md:grid-cols-[minmax(0,1fr)_10rem]'>
             <Field>
               <FieldLabel htmlFor='nutrient-search'>Search</FieldLabel>
               <InputGroup>
@@ -284,40 +275,11 @@ export function NutrientsPage() {
                 </SelectContent>
               </Select>
             </Field>
-            <Field>
-              <FieldLabel htmlFor='nutrient-status-filter'>Status</FieldLabel>
-              <Select
-                value={
-                  query.isActive === undefined ? 'all' : String(query.isActive)
-                }
-                onValueChange={(value) =>
-                  changeQuery({
-                    isActive: value === 'all' ? undefined : value === 'true',
-                    page: 1,
-                  })
-                }
-              >
-                <SelectTrigger
-                  id='nutrient-status-filter'
-                  className='w-full'
-                  aria-label='Status filter'
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value='all'>All statuses</SelectItem>
-                    <SelectItem value='true'>Active</SelectItem>
-                    <SelectItem value='false'>Inactive</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
           </FieldGroup>
           {hasFilters && (
             <section
               aria-label='Active nutrient filters'
-              className='flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 p-3'
+              className='flex flex-wrap items-center gap-2 border-t pt-3'
             >
               <span className='mr-1 text-sm font-medium'>Active filters</span>
               {query.search && (
@@ -325,11 +287,6 @@ export function NutrientsPage() {
               )}
               {query.unit && (
                 <Badge variant='secondary'>Unit: {query.unit}</Badge>
-              )}
-              {query.isActive !== undefined && (
-                <Badge variant='secondary'>
-                  Status: {query.isActive ? 'Active' : 'Inactive'}
-                </Badge>
               )}
               <Button
                 variant='ghost'
@@ -426,9 +383,9 @@ export function NutrientsPage() {
             )}
           </section>
         </CardContent>
-        <CardFooter className='border-t text-xs text-muted-foreground'>
+        <CardFooter className='border-t px-4 py-3 text-xs text-muted-foreground sm:px-5'>
           {result?.summary
-            ? 'Overview values reflect the complete preview dataset; filters affect the table results only.'
+            ? 'Overview values reflect the complete catalog; filters affect the table results only.'
             : 'Filters affect the table results and stay synchronized with the URL.'}
         </CardFooter>
       </Card>
@@ -443,13 +400,6 @@ export function NutrientsPage() {
         nutrient={selection.nutrient}
         open={selection.type === 'details'}
         onOpenChange={onOpenChange}
-      />
-      <NutrientStatusDialog
-        nutrient={currentNutrient}
-        open={selection.type === 'status'}
-        pending={updateState.isLoading}
-        onOpenChange={onOpenChange}
-        onConfirm={confirmStatus}
       />
       <DeleteNutrientDialog
         nutrient={selection.nutrient}

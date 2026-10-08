@@ -36,14 +36,13 @@ const zinc: Nutrient = {
 const callbacks = () => ({
   onView: vi.fn(),
   onEdit: vi.fn(),
-  onToggleStatus: vi.fn(),
   onDelete: vi.fn(),
 });
 
 afterEach(() => vi.restoreAllMocks());
 
 describe('NutrientRowActions', () => {
-  it('offers deactivate but safely disables delete for a used active nutrient', async () => {
+  it('safely disables delete for a used nutrient', async () => {
     const actions = callbacks();
     render(
       <NutrientRowActions
@@ -54,14 +53,11 @@ describe('NutrientRowActions', () => {
     await userEvent.click(
       screen.getByRole('button', { name: 'Actions for Iron' }),
     );
-    expect(
-      screen.getByRole('menuitem', { name: 'Deactivate' }),
-    ).not.toHaveAttribute('aria-disabled', 'true');
     const deleteItem = screen.getByRole('menuitem', { name: 'Delete' });
     expect(deleteItem).toHaveAttribute('aria-disabled', 'true');
     expect(deleteItem).toHaveAttribute('data-variant', 'default');
     expect(
-      screen.getByText('Used by 4 ingredients. Deactivate it instead.'),
+      screen.getByText('Used by 4 ingredients and cannot be deleted.'),
     ).toBeInTheDocument();
     fireEvent.click(deleteItem);
     expect(actions.onDelete).not.toHaveBeenCalled();
@@ -70,7 +66,6 @@ describe('NutrientRowActions', () => {
   it.each([
     ['View details', 'onView'],
     ['Edit', 'onEdit'],
-    ['Deactivate', 'onToggleStatus'],
     ['Delete', 'onDelete'],
   ] as const)(
     'routes %s to the selected unused nutrient',
@@ -89,22 +84,6 @@ describe('NutrientRowActions', () => {
       expect(actions[callback]).toHaveBeenCalledWith(zinc);
     },
   );
-
-  it('offers reactivate for an inactive used nutrient', async () => {
-    const nutrient = { ...iron, isActive: false };
-    const actions = callbacks();
-    render(
-      <NutrientRowActions
-        nutrient={nutrient}
-        {...actions}
-      />,
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Actions for Iron' }),
-    );
-    await userEvent.click(screen.getByRole('menuitem', { name: 'Reactivate' }));
-    expect(actions.onToggleStatus).toHaveBeenCalledWith(nutrient);
-  });
 });
 
 describe('nutrient confirmation dialogs', () => {
@@ -314,9 +293,8 @@ describe('NutrientDetailsDialog', () => {
     );
     expect(await screen.findByText('Updated Iron')).toBeInTheDocument();
     expect(screen.getByText('mcg')).toBeInTheDocument();
-    expect(screen.getByText('Inactive')).toBeInTheDocument();
     expect(screen.getByText('8')).toBeInTheDocument();
-    ['Name', 'Unit', 'Status', 'Ingredient usage count'].forEach((label) =>
+    ['Name', 'Unit', 'Ingredient usage count'].forEach((label) =>
       expect(screen.getByText(label)).toBeInTheDocument(),
     );
   });
