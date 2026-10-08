@@ -1,5 +1,10 @@
 import type { Ingredient } from '../ingredient.types';
-import { MoreHorizontalIcon } from 'lucide-react';
+import {
+  EyeIcon,
+  MoreHorizontalIcon,
+  PencilIcon,
+  Trash2Icon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -36,6 +41,7 @@ export function IngredientRowActions({
           variant='ghost'
           size='icon'
           aria-label={`Actions for ${ingredient.name}`}
+          className='hover:bg-muted data-[state=open]:bg-muted'
         >
           <MoreHorizontalIcon
             aria-hidden='true'
@@ -51,6 +57,10 @@ export function IngredientRowActions({
               if (system) onView(ingredient);
             }}
           >
+            <EyeIcon
+              aria-hidden='true'
+              data-icon='view'
+            />
             View details
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -60,6 +70,10 @@ export function IngredientRowActions({
               if (system) onEdit(ingredient);
             }}
           >
+            <PencilIcon
+              aria-hidden='true'
+              data-icon='edit'
+            />
             Edit
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -70,6 +84,10 @@ export function IngredientRowActions({
               if (policy.canDelete) onDelete(ingredient);
             }}
           >
+            <Trash2Icon
+              aria-hidden='true'
+              data-icon='delete'
+            />
             Delete
           </DropdownMenuItem>
           {policy.reason && (

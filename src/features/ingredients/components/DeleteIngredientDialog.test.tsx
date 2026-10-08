@@ -6,18 +6,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nutrientsApi } from '@/features/nutrients/api/nutrients-api';
 import { ingredientsApi } from '../api/ingredients-api';
 import {
-  previewIngredientTransport as preview,
-  resetIngredientsPreview,
-} from '../dev/ingredients-preview';
+  ingredientTransportFixture as preview,
+  resetIngredientFixtures,
+} from '@/test/fixtures/ingredient-transport.fixture';
 import type { Ingredient } from '../ingredient.types';
 import { DeleteIngredientDialog } from './DeleteIngredientDialog';
 
 const runtime = vi.hoisted(() => ({ success: vi.fn() }));
 vi.mock('../api/ingredient-transport', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api/ingredient-transport')>()),
-  isIngredientsPreview: true,
   getIngredientTransport: async () =>
-    (await import('../dev/ingredients-preview')).previewIngredientTransport,
+    (await import('@/test/fixtures/ingredient-transport.fixture'))
+      .ingredientTransportFixture,
 }));
 vi.mock('sonner', () => ({ toast: { success: runtime.success } }));
 const disposers: Array<() => void> = [];
@@ -46,7 +46,7 @@ function setup(ingredient: Ingredient, onClose = vi.fn()) {
   };
 }
 beforeEach(() => {
-  resetIngredientsPreview();
+  resetIngredientFixtures();
   runtime.success.mockClear();
 });
 afterEach(() => {

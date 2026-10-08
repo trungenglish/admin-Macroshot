@@ -21,6 +21,7 @@ import { Logo } from '@/assets/Logo';
 import { APP_SIDEBAR } from '@/layouts/navigation';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/layouts/components/UserMenu';
+import { ThemeToggle } from '@/shared/theme/ThemeToggle';
 
 function SidebarNavItem({
   item,
@@ -34,6 +35,7 @@ function SidebarNavItem({
       tooltip={item.title}
       asChild
       isActive={isActive}
+      className='data-[active=true]:bg-sidebar-primary/10 data-[active=true]:text-sidebar-primary data-[active=true]:hover:bg-sidebar-primary/15 data-[active=true]:hover:text-sidebar-primary dark:data-[active=true]:text-sidebar-primary-foreground dark:data-[active=true]:hover:text-sidebar-primary-foreground'
     >
       <NavLink to={item.url}>
         {({ isActive }) => (
@@ -128,6 +130,12 @@ export const AppSideBar = () => {
       {/* Sidebar Footer */}
       <SidebarFooter className={cn(isMobile && 'border-t')}>
         <SidebarMenu>
+          {!isMobile && (
+            <SidebarMenuItem>
+              <ThemeToggle variant='sidebar' />
+            </SidebarMenuItem>
+          )}
+
           <SidebarMenuItem className={cn(isMobile && 'p-2')}>
             {isMobile ? (
               <div className='flex justify-between items-start gap-2'>

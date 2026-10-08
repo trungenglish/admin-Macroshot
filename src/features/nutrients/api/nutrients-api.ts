@@ -1,12 +1,7 @@
 import { createApi, type BaseQueryFn } from '@reduxjs/toolkit/query/react';
 import axios, { type AxiosRequestConfig } from 'axios';
 
-import type { RootState } from '@/app/store';
 import { apiClient } from '@/shared/api/api-client';
-import {
-  createPreviewNutrient,
-  previewNutrientRequest,
-} from './nutrients-preview';
 import {
   NUTRIENT_UNITS,
   type Nutrient,
@@ -22,8 +17,8 @@ interface NutrientDto {
   id: number;
   name: string;
   unit: NutrientUnit;
-  is_active: boolean;
-  ingredient_count: number;
+  is_active?: boolean;
+  ingredient_count?: number;
 }
 
 interface NutrientListDto {
@@ -32,6 +27,25 @@ interface NutrientListDto {
   skip: number;
   limit: number;
   summary?: NutrientSummary;
+}
+
+interface NutrientListEnvelopeDto {
+  success: boolean;
+  data: {
+    items: NutrientDto[];
+    meta: {
+      total: number;
+      skip: number;
+      limit: number;
+      count: number;
+      total_pages: number;
+      current_page: number;
+      has_next: boolean;
+      has_prev: boolean;
+    };
+  };
+  message: string;
+  timestamp: string;
 }
 
 export interface ApiError {
@@ -47,9 +61,7 @@ interface AxiosBaseQueryArgs {
   params?: Record<string, unknown>;
 }
 
-export const isNutrientsPreview =
-  import.meta.env.DEV &&
-  ['nutrients-preview', 'admin-preview'].includes(import.meta.env.MODE);
+const NUTRIENTS_PATH = '/api/v1/nutrients/';
 
 function isNutrientUnit(value: unknown): value is NutrientUnit {
   return NUTRIENT_UNITS.includes(value as NutrientUnit);
@@ -61,19 +73,30 @@ export function normalizeNutrient(dto: NutrientDto): Nutrient {
     id: dto.id,
     name: dto.name,
     unit: dto.unit,
-    isActive: dto.is_active,
-    ingredientCount: dto.ingredient_count,
+    isActive: dto.is_active ?? true,
+    ingredientCount: dto.ingredient_count ?? 0,
   };
 }
 
 export function normalizeNutrientList(
-  dto: NutrientListDto,
+  response: NutrientListDto | NutrientListEnvelopeDto,
 ): NutrientListResult {
+  const dto: NutrientListDto =
+    'data' in response
+      ? {
+          items: response.data.items,
+          total: response.data.meta.total,
+          skip: response.data.meta.skip,
+          limit: response.data.meta.limit,
+        }
+      : response;
+  const pageSize = dto.limit > 0 ? dto.limit : Math.max(dto.items.length, 10);
+
   return {
     items: dto.items.map(normalizeNutrient),
     total: dto.total,
-    page: Math.floor(dto.skip / dto.limit) + 1,
-    pageSize: dto.limit,
+    page: Math.floor(dto.skip / pageSize) + 1,
+    pageSize,
     ...(dto.summary ? { summary: dto.summary } : {}),
   };
 }
@@ -135,18 +158,10 @@ function toApiError(error: unknown): ApiError {
 const axiosBaseQuery =
   (): BaseQueryFn<AxiosBaseQueryArgs, unknown, ApiError> =>
   async ({ url, method, data, params }, api) => {
-    const token = (api.getState() as RootState).auth.accessToken;
+    const token = (
+      api.getState() as { auth: { accessToken: string | null } }
+    ).auth.accessToken;
     try {
-      if (isNutrientsPreview) {
-        if (url === '/nutrients' && method === 'POST') {
-          return {
-            data: createPreviewNutrient(
-              data as { name: string; unit: NutrientUnit },
-            ),
-          };
-        }
-        return previewNutrientRequest({ url, method, data, params });
-      }
       const response = await apiClient.request({
         url,
         method,
@@ -166,15 +181,13 @@ export const nutrientsApi = createApi({
   tagTypes: ['Nutrient'],
   endpoints: (builder) => ({
     getNutrients: builder.query<NutrientListResult, NutrientListQuery>({
-      query: ({ page, pageSize, search, unit, isActive }) => ({
-        url: '/nutrients',
+      query: ({ page, pageSize, search }) => ({
+        url: NUTRIENTS_PATH,
         method: 'GET',
         params: {
           skip: (page - 1) * pageSize,
           limit: pageSize,
-          ...(search ? { search } : {}),
-          ...(unit ? { unit } : {}),
-          ...(isActive === undefined ? {} : { is_active: isActive }),
+          ...(search ? { query: search } : {}),
         },
       }),
       transformResponse: normalizeNutrientList,
@@ -187,18 +200,18 @@ export const nutrientsApi = createApi({
       ],
     }),
     getNutrient: builder.query<Nutrient, number>({
-      query: (id) => ({ url: `/nutrients/${id}`, method: 'GET' }),
+      query: (id) => ({ url: `${NUTRIENTS_PATH}${id}`, method: 'GET' }),
       transformResponse: normalizeNutrient,
       providesTags: (_result, _error, id) => [{ type: 'Nutrient', id }],
     }),
     createNutrient: builder.mutation<Nutrient, NutrientFormValues>({
-      query: (body) => ({ url: '/nutrients', method: 'POST', data: body }),
+      query: (body) => ({ url: NUTRIENTS_PATH, method: 'POST', data: body }),
       transformResponse: normalizeNutrient,
       invalidatesTags: [{ type: 'Nutrient', id: 'LIST' }],
     }),
     updateNutrient: builder.mutation<Nutrient, NutrientUpdateInput>({
       query: ({ id, isActive, ...fields }) => ({
-        url: `/nutrients/${id}`,
+        url: `${NUTRIENTS_PATH}${id}`,
         method: 'PATCH',
         data: {
           ...fields,
@@ -212,7 +225,7 @@ export const nutrientsApi = createApi({
       ],
     }),
     deleteNutrient: builder.mutation<void, number>({
-      query: (id) => ({ url: `/nutrients/${id}`, method: 'DELETE' }),
+      query: (id) => ({ url: `${NUTRIENTS_PATH}${id}`, method: 'DELETE' }),
       invalidatesTags: (_result, _error, id) => [
         { type: 'Nutrient', id },
         { type: 'Nutrient', id: 'LIST' },

@@ -8,6 +8,7 @@ const count = z
   .number()
   .refine((value) => Number.isSafeInteger(value) && value >= 0);
 const id = count.refine((value) => value > 0);
+const nonNegativeNumber = z.number().finite().nonnegative();
 
 // Only the originally supplied Ingredient response fields are mapped here.
 // No live HTTP endpoint or complete atomic write contract has been verified.
@@ -20,10 +21,10 @@ const ingredientResponseSchema = z.object({
   image_url: z.string().max(500).nullable(),
   default_weight_per_serving: z.unknown(),
   last_input_type: z.string(),
-  cal_per_100g: count,
-  pro_per_100g: count,
-  carb_per_100g: count,
-  fat_per_100g: count,
+  cal_per_100g: nonNegativeNumber,
+  pro_per_100g: nonNegativeNumber,
+  carb_per_100g: nonNegativeNumber,
+  fat_per_100g: nonNegativeNumber,
 });
 const linksSchema = z
   .array(

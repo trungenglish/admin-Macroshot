@@ -6,7 +6,7 @@
 
 ## Summary
 
-Replace the existing mock admin sign-in submission with a typed Redux Toolkit authentication flow. A shared Axios client will read `VITE_API_URL`, a dedicated service will post `{ username, password }` to `/api/v1/admin/login`, and an async auth action will normalize the documented response envelope, persist only the access token under `admin_token`, and update shared access-token, user-profile, status, and error state. `AdminSignInPage` will retain its field validation while dispatching the real flow, preventing duplicate submissions, presenting loading and API errors, logging `Login Successful` after a fulfilled dispatch, and deliberately performing no navigation.
+Replace the existing mock admin sign-in submission with a typed Redux Toolkit authentication flow. A shared Axios client will read `VITE_API_URL`, a dedicated service will post `{ username, password }` to `/api/v1/auth/admin/login`, and an async auth action will normalize the documented response envelope, persist only the access token under `admin_token`, and update shared access-token, user-profile, status, and error state. `AdminSignInPage` will retain its field validation while dispatching the real flow, preventing duplicate submissions, presenting loading and API errors, logging `Login Successful` after a fulfilled dispatch, and navigating to `/admin/ingredients` after success.
 
 ## Technical Context
 
@@ -24,7 +24,7 @@ Replace the existing mock admin sign-in submission with a typed Redux Toolkit au
 
 **Performance Goals**: Loading feedback appears within 500 ms of submission; one pending attempt produces at most one request; success or error UI updates within one second after the service response is received
 
-**Constraints**: Use `{ username, password }`; call `POST /api/v1/admin/login`; source the base URL from `import.meta.env.VITE_API_URL`; persist no password or refresh token; do not restore sessions, refresh tokens, protect routes, or navigate after success; preserve the existing shadcn `FieldGroup`/`Field` validation composition, native `disabled` button behavior, and assistive-technology feedback
+**Constraints**: Use `{ username, password }`; call `POST /api/v1/auth/admin/login`; source the base URL from `import.meta.env.VITE_API_URL`; persist no password or refresh token; do not restore sessions, refresh tokens, or protect routes; navigate to `/admin/ingredients` after success; preserve the existing shadcn `FieldGroup`/`Field` validation composition, native `disabled` button behavior, and assistive-technology feedback
 
 **Scale/Scope**: One existing page, one validation module, one Axios instance, one auth service adapter, one Redux store, one auth slice/thunk, one typed hooks module, and the application entry point
 

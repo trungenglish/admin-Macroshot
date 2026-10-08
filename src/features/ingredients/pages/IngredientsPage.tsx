@@ -41,7 +41,6 @@ import type { IngredientApiError } from '../api/ingredient-transport';
 import { DeleteIngredientDialog } from '../components/DeleteIngredientDialog';
 import { createIngredientColumns } from '../components/IngredientColumns';
 import { IngredientDetailsDialog } from '../components/IngredientDetailsDialog';
-import { IngredientPreviewNotice } from '../components/IngredientPreviewNotice';
 import { IngredientSummaryCards } from '../components/IngredientSummaryCards';
 import { IngredientTable } from '../components/IngredientTable';
 import { IngredientTableSkeleton } from '../components/IngredientTableSkeleton';
@@ -125,7 +124,10 @@ export function IngredientsPage(): React.JSX.Element {
     changeQuery({ page: 1, search: '', unit: undefined });
   }
   const addLink = (
-    <Button asChild>
+    <Button
+      asChild
+      className='dark:text-background'
+    >
       <Link to={`/admin/ingredients/new${editorSearch}`}>
         <PlusIcon
           aria-hidden='true'
@@ -136,11 +138,14 @@ export function IngredientsPage(): React.JSX.Element {
     </Button>
   );
   return (
-    <div className='flex min-w-0 flex-col gap-6'>
+    <div className='flex min-w-0 flex-col gap-5'>
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink asChild>
+            <BreadcrumbLink
+              asChild
+              className='inline-flex min-h-8 items-center'
+            >
               <Link to='/admin'>Admin</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -150,16 +155,17 @@ export function IngredientsPage(): React.JSX.Element {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <IngredientPreviewNotice />
-      <div className='flex flex-wrap items-center justify-between gap-4'>
-        <div className='flex flex-col gap-2'>
+      <div className='flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-end sm:justify-between'>
+        <div className='flex min-w-0 flex-col gap-1.5'>
           <div className='flex items-center gap-3'>
-            <h1 className='text-2xl font-semibold text-balance'>Ingredients</h1>
+            <h1 className='text-2xl font-semibold tracking-tight text-balance'>
+              Ingredients
+            </h1>
             {result && (
               <Badge variant='secondary'>{result.total} ingredients</Badge>
             )}
           </div>
-          <p className='text-muted-foreground'>
+          <p className='max-w-2xl text-sm text-muted-foreground'>
             Manage system ingredients and their nutrition per 100g. Personal
             ingredients are not managed here.
           </p>
@@ -170,8 +176,8 @@ export function IngredientsPage(): React.JSX.Element {
         summary={result?.summary}
         loading={loading}
       />
-      <Card className='min-w-0 overflow-hidden'>
-        <CardHeader className='border-b'>
+      <Card className='min-w-0 gap-0 overflow-hidden py-0 shadow-none'>
+        <CardHeader className='border-b px-4 py-4 sm:px-5'>
           <CardTitle>Ingredient catalog</CardTitle>
           <CardDescription>
             Search, review nutrition values, and manage every system ingredient.
@@ -182,8 +188,8 @@ export function IngredientsPage(): React.JSX.Element {
             </CardAction>
           )}
         </CardHeader>
-        <CardContent className='flex min-w-0 flex-col gap-5'>
-          <FieldGroup className='grid gap-4 md:grid-cols-[minmax(0,1fr)_10rem]'>
+        <CardContent className='flex min-w-0 flex-col gap-4 px-4 py-4 sm:px-5'>
+          <FieldGroup className='grid gap-3 md:grid-cols-[minmax(0,1fr)_11rem]'>
             <Field>
               <FieldLabel htmlFor='ingredient-search'>
                 Search ingredients
@@ -229,7 +235,7 @@ export function IngredientsPage(): React.JSX.Element {
           {hasFilters && (
             <section
               aria-label='Active ingredient filters'
-              className='flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 p-3'
+              className='flex flex-wrap items-center gap-2 border-t pt-3'
             >
               <span className='mr-1 text-sm font-medium'>Active filters</span>
               {query.search && (
@@ -329,9 +335,9 @@ export function IngredientsPage(): React.JSX.Element {
             )}
           </section>
         </CardContent>
-        <CardFooter className='border-t text-xs text-muted-foreground'>
+        <CardFooter className='border-t px-4 py-3 text-xs text-muted-foreground sm:px-5'>
           {result?.summary
-            ? 'Overview values reflect the complete preview dataset; filters affect the table results only.'
+            ? 'Overview values reflect the complete catalog; filters affect the table results only.'
             : 'Filters affect the table results and stay synchronized with the URL.'}
         </CardFooter>
       </Card>

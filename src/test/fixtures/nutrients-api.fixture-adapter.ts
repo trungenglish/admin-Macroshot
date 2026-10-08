@@ -5,8 +5,8 @@ import axios, {
 } from 'axios';
 
 import type { Nutrient } from '@/features/nutrients/nutrient.types';
-import { normalizeIngredientApiError } from '../api/ingredient-adapter';
-import { previewNutrients } from './ingredients-preview';
+import { normalizeIngredientApiError } from '@/features/ingredients/api/ingredient-adapter';
+import { nutrientFixtures } from '@/test/fixtures/ingredient-transport.fixture';
 
 function toDto(nutrient: Nutrient) {
   return {
@@ -18,9 +18,11 @@ function toDto(nutrient: Nutrient) {
   };
 }
 
-// These are exclusively the already verified Nutrients paths and payload fields.
-export const nutrientsPreviewAdapter: AxiosAdapter = async (config) => {
-  const match = /^\/nutrients(?:\/(\d+))?$/.exec(config.url ?? '');
+// Simulates Nutrients API requests for isolated tests only.
+export const nutrientsApiFixtureAdapter: AxiosAdapter = async (config) => {
+  const match = /^(?:\/api\/v1)?\/nutrients\/?(?:([0-9]+))?$/.exec(
+    config.url ?? '',
+  );
   if (!match) return axios.getAdapter(axios.defaults.adapter)(config);
   const method = config.method?.toUpperCase() ?? 'GET';
   const id = match[1] === undefined ? undefined : Number(match[1]);
@@ -40,10 +42,12 @@ export const nutrientsPreviewAdapter: AxiosAdapter = async (config) => {
       );
       const skip = Math.max(0, Number(params.get('skip') ?? 0));
       const limit = Math.max(1, Number(params.get('limit') ?? 10));
-      const search = (params.get('search') ?? '').trim().toLowerCase();
+      const search = (params.get('query') ?? params.get('search') ?? '')
+        .trim()
+        .toLowerCase();
       const unit = params.get('unit');
       const active = params.get('is_active');
-      const matching = previewNutrients
+      const matching = nutrientFixtures
         .list()
         .filter(
           (item) =>
@@ -59,16 +63,16 @@ export const nutrientsPreviewAdapter: AxiosAdapter = async (config) => {
       });
     }
     if (method === 'GET' && id !== undefined)
-      return response(toDto(previewNutrients.detail(id)));
+      return response(toDto(nutrientFixtures.detail(id)));
     if (method === 'POST' && id === undefined)
-      return response(toDto(previewNutrients.create(body)), 201);
+      return response(toDto(nutrientFixtures.create(body)), 201);
     if (method === 'PATCH' && id !== undefined)
-      return response(toDto(previewNutrients.update(id, body)));
+      return response(toDto(nutrientFixtures.update(id, body)));
     if (method === 'DELETE' && id !== undefined) {
-      previewNutrients.delete(id);
+      nutrientFixtures.delete(id);
       return response(undefined, 204);
     }
-    throw { status: 405, message: 'Unsupported Nutrient preview operation.' };
+    throw { status: 405, message: 'Unsupported Nutrient fixture operation.' };
   } catch (error) {
     const normalized = normalizeIngredientApiError(error);
     const status =

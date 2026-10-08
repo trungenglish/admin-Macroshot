@@ -14,17 +14,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nutrientsApi } from '@/features/nutrients/api/nutrients-api';
 import { ingredientsApi } from '../api/ingredients-api';
 import {
-  previewIngredientTransport as preview,
-  resetIngredientsPreview,
-} from '../dev/ingredients-preview';
+  ingredientTransportFixture as preview,
+  resetIngredientFixtures,
+} from '@/test/fixtures/ingredient-transport.fixture';
 import { IngredientsPage } from './IngredientsPage';
 
 const runtime = vi.hoisted(() => ({ success: vi.fn() }));
 vi.mock('../api/ingredient-transport', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api/ingredient-transport')>()),
-  isIngredientsPreview: true,
   getIngredientTransport: async () =>
-    (await import('../dev/ingredients-preview')).previewIngredientTransport,
+    (await import('@/test/fixtures/ingredient-transport.fixture'))
+      .ingredientTransportFixture,
 }));
 vi.mock('sonner', () => ({ toast: { success: runtime.success } }));
 const disposers: Array<() => void> = [];
@@ -64,7 +64,7 @@ async function rowAction(name: string, action: string) {
   await userEvent.click(screen.getByRole('menuitem', { name: action }));
 }
 beforeEach(() => {
-  resetIngredientsPreview();
+  resetIngredientFixtures();
   runtime.success.mockClear();
   // Match the Nutrients tests: jsdom lacks these Radix Select browser APIs.
   HTMLElement.prototype.hasPointerCapture = () => false;
@@ -80,7 +80,7 @@ afterEach(() => {
 describe('IngredientsPage', () => {
   // Break caught: dashboard figures are derived from the current page/filter or
   // disappear, so admins cannot assess catalog coverage at a glance.
-  it('shows complete catalog overview values from preview summary data', async () => {
+  it('shows complete catalog overview values from fixture summary data', async () => {
     setup('/admin/ingredients?search=Brown&unit=g');
 
     const overview = await screen.findByRole('region', {

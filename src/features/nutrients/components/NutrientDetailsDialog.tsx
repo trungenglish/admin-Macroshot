@@ -1,5 +1,4 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -52,7 +51,7 @@ export function NutrientDetailsDialog({
         <DialogHeader>
           <DialogTitle>Nutrient details</DialogTitle>
           <DialogDescription>
-            View the nutrient measurement unit, status, and ingredient usage.
+            View the nutrient measurement unit and ingredient usage.
           </DialogDescription>
         </DialogHeader>
         {loading ? (
@@ -90,17 +89,11 @@ export function NutrientDetailsDialog({
           </Alert>
         ) : (
           details && (
-            <dl className='grid grid-cols-2 gap-3'>
+            <dl className='grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-x-4 gap-y-0 overflow-hidden rounded-lg border text-sm [&>dd]:border-b [&>dd]:py-2.5 [&>dd]:font-medium [&>dt]:border-b [&>dt]:bg-muted/35 [&>dt]:px-3 [&>dt]:py-2.5 [&>dt]:text-muted-foreground [&>*:nth-last-child(-n+2)]:border-b-0'>
               <dt>Name</dt>
               <dd>{details.name}</dd>
               <dt>Unit</dt>
               <dd>{details.unit}</dd>
-              <dt>Status</dt>
-              <dd>
-                <Badge variant={details.isActive ? 'default' : 'secondary'}>
-                  {details.isActive ? 'Active' : 'Inactive'}
-                </Badge>
-              </dd>
               <dt>Ingredient usage count</dt>
               <dd>{details.ingredientCount}</dd>
             </dl>

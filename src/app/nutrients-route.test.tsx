@@ -59,6 +59,12 @@ describe('nutrients app integration', { timeout: 15_000 }, () => {
     expect(link).toHaveAttribute('href', '/admin/nutrients');
     expect(link).toHaveAttribute('aria-current', 'page');
     expect(link).toHaveAttribute('data-active', 'true');
+    expect(link).toHaveClass(
+      'data-[active=true]:bg-sidebar-primary/10',
+      'data-[active=true]:text-sidebar-primary',
+      'data-[active=true]:hover:bg-sidebar-primary/15',
+      'dark:data-[active=true]:text-sidebar-primary-foreground',
+    );
     expect(router.state.location.search).toBe('?unit=mg&isActive=false');
     expect(
       screen.queryByRole('heading', { name: /sign in/i }),

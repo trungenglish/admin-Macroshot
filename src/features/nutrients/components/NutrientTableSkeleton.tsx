@@ -8,7 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-const headings = ['ID', 'Name', 'Unit', 'Ingredients', 'Status', 'Actions'];
+const headings = ['ID', 'Name', 'Unit', 'Ingredients', 'Actions'];
 
 export function NutrientTableSkeleton() {
   return (

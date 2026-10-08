@@ -1,6 +1,4 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { CircleCheckIcon, CirclePauseIcon } from 'lucide-react';
-
 import { Badge } from '@/components/ui/badge';
 import type { Nutrient } from '../nutrient.types';
 import { NutrientRowActions } from './NutrientRowActions';
@@ -8,7 +6,6 @@ import { NutrientRowActions } from './NutrientRowActions';
 interface NutrientColumnActions {
   onView(nutrient: Nutrient): void;
   onEdit(nutrient: Nutrient): void;
-  onToggleStatus(nutrient: Nutrient): void;
   onDelete(nutrient: Nutrient): void;
 }
 
@@ -51,26 +48,6 @@ export function createNutrientColumns(
             ? 'Not in use'
             : `${row.original.ingredientCount} linked`}
         </span>
-      ),
-    },
-    {
-      accessorKey: 'isActive',
-      header: 'Status',
-      cell: ({ row }) => (
-        <Badge variant={row.original.isActive ? 'default' : 'secondary'}>
-          {row.original.isActive ? (
-            <CircleCheckIcon
-              aria-hidden='true'
-              data-icon='inline-start'
-            />
-          ) : (
-            <CirclePauseIcon
-              aria-hidden='true'
-              data-icon='inline-start'
-            />
-          )}
-          {row.original.isActive ? 'Active' : 'Inactive'}
-        </Badge>
       ),
     },
     {

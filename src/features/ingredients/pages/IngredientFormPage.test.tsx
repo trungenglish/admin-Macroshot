@@ -9,20 +9,18 @@ import { nutrientsApi } from '@/features/nutrients/api/nutrients-api';
 import { apiClient } from '@/shared/api/api-client';
 import { ingredientsApi } from '../api/ingredients-api';
 import {
-  previewIngredientTransport as preview,
-  resetIngredientsPreview,
-} from '../dev/ingredients-preview';
-import { nutrientsPreviewAdapter } from '../dev/nutrients-preview-adapter';
+  ingredientTransportFixture as preview,
+  resetIngredientFixtures,
+} from '@/test/fixtures/ingredient-transport.fixture';
+import { nutrientsApiFixtureAdapter } from '@/test/fixtures/nutrients-api.fixture-adapter';
 import { IngredientFormPage } from './IngredientFormPage';
 
-const runtime = vi.hoisted(() => ({ enabled: true, success: vi.fn() }));
+const runtime = vi.hoisted(() => ({ success: vi.fn() }));
 vi.mock('../api/ingredient-transport', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api/ingredient-transport')>()),
-  get isIngredientsPreview() {
-    return runtime.enabled;
-  },
   getIngredientTransport: async () =>
-    (await import('../dev/ingredients-preview')).previewIngredientTransport,
+    (await import('@/test/fixtures/ingredient-transport.fixture'))
+      .ingredientTransportFixture,
 }));
 vi.mock('sonner', () => ({ toast: { success: runtime.success } }));
 const originalAdapter = apiClient.defaults.adapter;
@@ -68,10 +66,9 @@ function setup(entry = '/admin/ingredients/1/edit', entries?: string[]) {
   return { store, router };
 }
 beforeEach(() => {
-  resetIngredientsPreview();
-  runtime.enabled = true;
+  resetIngredientFixtures();
   runtime.success.mockClear();
-  apiClient.defaults.adapter = nutrientsPreviewAdapter;
+  apiClient.defaults.adapter = nutrientsApiFixtureAdapter;
 });
 afterEach(() => {
   cleanup();
@@ -247,7 +244,7 @@ describe('IngredientFormPage', () => {
     expect(runtime.success).not.toHaveBeenCalled();
     expect(router.state.location.pathname).toBe('/admin/ingredients/1/edit');
   });
-  it('allows explicit inactive link removal through preview save', async () => {
+  it('allows explicit inactive link removal through a fixture-backed save', async () => {
     setup('/admin/ingredients/2/edit');
     await screen.findByLabelText('Name');
     await userEvent.click(
@@ -256,27 +253,6 @@ describe('IngredientFormPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
     await screen.findByText('Ingredient list');
     expect((await preview.detail(2)).nutrientLinks).toEqual([]);
-  });
-  it('shows preview notice, and unconfigured create cannot pretend success', async () => {
-    runtime.enabled = false;
-    setup('/admin/ingredients/new');
-    expect(
-      screen.queryByText('Development preview — temporary data; no live API.'),
-    ).not.toBeInTheDocument();
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'Ingredient API is not configured',
-    );
-    expect(
-      screen.getByRole('button', { name: 'Create ingredient' }),
-    ).toBeDisabled();
-    expect(runtime.success).not.toHaveBeenCalled();
-  });
-  it('shows the exact preview notice when enabled', async () => {
-    setup();
-    await screen.findByLabelText('Name');
-    expect(
-      screen.getByText('Development preview — temporary data; no live API.'),
-    ).toBeInTheDocument();
   });
   // Break caught: create is sent to update or unsafe returnTo becomes a navigation target.
   it('creates complete system input and rejects an unsafe return target', async () => {

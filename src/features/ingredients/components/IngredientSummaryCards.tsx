@@ -4,15 +4,6 @@ import {
   UtensilsIcon,
 } from 'lucide-react';
 
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { IngredientSummary } from '../ingredient.types';
@@ -57,42 +48,41 @@ export function IngredientSummaryCards({
       aria-label='Ingredient overview'
       aria-busy={loading}
     >
-      <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
+      <div className='grid overflow-hidden rounded-xl border bg-card sm:grid-cols-3'>
         {summaryItems.map((item) => {
           const Icon = item.icon;
 
           return (
-            <Card
+            <article
               key={item.key}
-              className='gap-4 py-5 shadow-xs'
+              className='flex flex-col gap-3 border-b py-4 last:border-b-0 sm:border-r sm:border-b-0 sm:last:border-r-0'
             >
-              <CardHeader className='gap-1'>
-                <CardTitle
+              <div className='grid grid-cols-[1fr_auto] gap-1 px-4 sm:px-5'>
+                <h2
                   role='heading'
                   aria-level={2}
                   className='text-sm font-medium text-muted-foreground'
                 >
                   {item.label}
-                </CardTitle>
-                <CardDescription>{item.description}</CardDescription>
-                <CardAction className='rounded-lg bg-muted p-2 text-muted-foreground'>
+                </h2>
+                <div className='row-span-2 rounded-md bg-primary/8 p-2 text-primary'>
                   <Icon aria-hidden='true' />
-                </CardAction>
-              </CardHeader>
-              <CardContent>
+                </div>
+              </div>
+              <div className='px-4 sm:px-5'>
                 {loading ? (
                   <Skeleton className='h-9 w-20' />
                 ) : summary ? (
-                  <p className='text-3xl font-semibold tracking-tight tabular-nums'>
+                  <p className='text-2xl font-semibold tracking-tight tabular-nums'>
                     {summary[item.key]}
                   </p>
                 ) : (
-                  <p className='text-3xl font-semibold tracking-tight text-muted-foreground'>
+                  <p className='text-2xl font-semibold tracking-tight text-muted-foreground'>
                     —
                   </p>
                 )}
-              </CardContent>
-              <CardFooter className='min-h-6 text-xs text-muted-foreground'>
+              </div>
+              <div className='mt-auto min-h-5 px-4 text-xs text-muted-foreground sm:px-5'>
                 {item.key === 'total' && summary && !loading ? (
                   <div className='flex w-full flex-col gap-2'>
                     <div className='flex items-center justify-between gap-3'>
@@ -107,7 +97,7 @@ export function IngredientSummaryCards({
                     />
                   </div>
                 ) : (
-                  <span>
+                  <span title={item.description}>
                     {loading
                       ? 'Loading overview…'
                       : !summary
@@ -117,8 +107,8 @@ export function IngredientSummaryCards({
                           : `${summary.withNutrientData} of ${summary.total} ingredients`}
                   </span>
                 )}
-              </CardFooter>
-            </Card>
+              </div>
+            </article>
           );
         })}
       </div>

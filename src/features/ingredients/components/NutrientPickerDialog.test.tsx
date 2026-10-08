@@ -7,8 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { nutrientsApi } from '@/features/nutrients/api/nutrients-api';
 import { apiClient } from '@/shared/api/api-client';
-import { resetIngredientsPreview } from '../dev/ingredients-preview';
-import { nutrientsPreviewAdapter } from '../dev/nutrients-preview-adapter';
+import { resetIngredientFixtures } from '@/test/fixtures/ingredient-transport.fixture';
+import { nutrientsApiFixtureAdapter } from '@/test/fixtures/nutrients-api.fixture-adapter';
 import { NutrientPickerDialog } from './NutrientPickerDialog';
 
 const originalAdapter = apiClient.defaults.adapter;
@@ -48,8 +48,8 @@ function setup(selectedIds: number[] = []) {
   return { onSelect };
 }
 beforeEach(() => {
-  resetIngredientsPreview();
-  apiClient.defaults.adapter = nutrientsPreviewAdapter;
+  resetIngredientFixtures();
+  apiClient.defaults.adapter = nutrientsApiFixtureAdapter;
 });
 afterEach(() => {
   stores.forEach((store) => store.dispatch(nutrientsApi.util.resetApiState()));

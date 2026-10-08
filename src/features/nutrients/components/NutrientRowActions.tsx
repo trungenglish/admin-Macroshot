@@ -1,4 +1,9 @@
-import { MoreHorizontalIcon } from 'lucide-react';
+import {
+  EyeIcon,
+  MoreHorizontalIcon,
+  PencilIcon,
+  Trash2Icon,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,7 +21,6 @@ interface NutrientRowActionsProps {
   nutrient: Nutrient;
   onView(nutrient: Nutrient): void;
   onEdit(nutrient: Nutrient): void;
-  onToggleStatus(nutrient: Nutrient): void;
   onDelete(nutrient: Nutrient): void;
 }
 
@@ -24,10 +28,9 @@ export function NutrientRowActions({
   nutrient,
   onView,
   onEdit,
-  onToggleStatus,
   onDelete,
 }: NutrientRowActionsProps) {
-  const { statusAction, canDelete } = getNutrientActionPolicy(nutrient);
+  const { canDelete } = getNutrientActionPolicy(nutrient);
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
@@ -35,6 +38,7 @@ export function NutrientRowActions({
           variant='ghost'
           size='icon'
           aria-label={`Actions for ${nutrient.name}`}
+          className='hover:bg-muted data-[state=open]:bg-muted'
         >
           <MoreHorizontalIcon
             aria-hidden='true'
@@ -45,13 +49,18 @@ export function NutrientRowActions({
       <DropdownMenuContent align='end'>
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={() => onView(nutrient)}>
+            <EyeIcon
+              aria-hidden='true'
+              data-icon='view'
+            />
             View details
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => onEdit(nutrient)}>
+            <PencilIcon
+              aria-hidden='true'
+              data-icon='edit'
+            />
             Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onToggleStatus(nutrient)}>
-            {statusAction === 'deactivate' ? 'Deactivate' : 'Reactivate'}
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!canDelete}
@@ -61,12 +70,16 @@ export function NutrientRowActions({
               if (canDelete) onDelete(nutrient);
             }}
           >
+            <Trash2Icon
+              aria-hidden='true'
+              data-icon='delete'
+            />
             Delete
           </DropdownMenuItem>
           {!canDelete && (
-            <DropdownMenuLabel>
-              Used by {nutrient.ingredientCount} ingredients. Deactivate it
-              instead.
+            <DropdownMenuLabel className='max-w-72 whitespace-normal'>
+              Used by {nutrient.ingredientCount} ingredients and cannot be
+              deleted.
             </DropdownMenuLabel>
           )}
         </DropdownMenuGroup>
