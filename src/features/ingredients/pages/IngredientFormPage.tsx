@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { normalizeIngredientApiError } from '../api/ingredient-adapter';
+import type { IngredientApiError } from '../api/ingredient-transport';
 import {
   useCreateIngredientMutation,
   useGetIngredientQuery,
