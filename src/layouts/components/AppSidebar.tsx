@@ -28,7 +28,9 @@ function SidebarNavItem({
 }: {
   item: (typeof APP_SIDEBAR.primaryNav)[number];
 }) {
-  const isActive = Boolean(useMatch({ path: item.url, end: false }));
+  const isActive = Boolean(
+    useMatch({ path: item.url, end: item.url === '/admin' }),
+  );
 
   return (
     <SidebarMenuButton
