@@ -4,13 +4,13 @@ on:
   push:
     branches:
       - main
-      - develop
+      - dev
       - 'feature/**'
   pull_request:
     branches: [main, develop]
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '24'
   PNPM_VERSION: '9'
 
 jobs:

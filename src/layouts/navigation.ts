@@ -13,7 +13,7 @@ import {
 
 export const APP_SIDEBAR = {
   primaryNav: [
-    { title: 'Dashboard', url: '#', Icon: LayoutDashboardIcon },
+    { title: 'Dashboard', url: '/admin', Icon: LayoutDashboardIcon },
     { title: 'Users', url: '/admin/users', Icon: UsersIcon },
     { title: 'Recipes', url: '#', Icon: UtensilsIcon },
     { title: 'Ingredients', url: '/admin/ingredients', Icon: CarrotIcon },

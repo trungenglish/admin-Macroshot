@@ -8,11 +8,11 @@ export const Header = () => {
   const { toggleSidebar } = useSidebar();
 
   return (
-    <header className='flex gap-1 justify-between items-center py-3 ps-4 pe-2 border-b lg:hidden'>
+    <header className='flex gap-1 justify-between items-center py-3 ps-4 pe-2 border-b bg-background lg:hidden'>
       <Logo />
 
       <div className='ml-auto'>
-        <ThemeToggle /> 
+        <ThemeToggle />
       </div>
 
       <Button
