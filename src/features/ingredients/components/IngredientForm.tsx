@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect, useId, useRef } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -61,6 +61,8 @@ export function IngredientForm({
 }: IngredientFormProps): React.JSX.Element {
   const id = useId();
   const submitting = useRef(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   // RHF captures defaults once. The page keys each record/mode; remote refetches
   // deliberately never reset this user's draft or its historical nutrient links.
   const form = useForm<IngredientFormValues>({
@@ -79,8 +81,8 @@ export function IngredientForm({
     formState: { errors, isDirty, isSubmitting },
   } = form;
   useEffect(() => {
-    onDirtyChange(isDirty);
-  }, [isDirty, onDirtyChange]);
+    onDirtyChange(isDirty || imageFile !== null);
+  }, [imageFile, isDirty, onDirtyChange]);
   const locked = isPending || isSubmitting;
   const unconfigured = error?.status === 'NOT_CONFIGURED';
   const applyFailure = useCallback(
@@ -111,7 +113,10 @@ export function IngredientForm({
     submitting.current = true;
     clearErrors();
     try {
-      await onSubmit(toIngredientSaveInput(values));
+      await onSubmit({
+        ...toIngredientSaveInput(values),
+        ...(imageFile ? { file: imageFile } : {}),
+      });
     } catch (caught) {
       applyFailure(normalizeIngredientApiError(caught));
     } finally {
@@ -182,6 +187,44 @@ export function IngredientForm({
               'defaultWeightPerServing',
               'Default weight per serving (g)',
             )}
+            {!ingredient && (
+              <Field>
+                <FieldLabel htmlFor={`${id}-image`}>
+                  Ingredient image
+                </FieldLabel>
+                <Input
+                  ref={fileInput}
+                  id={`${id}-image`}
+                  name='file'
+                  type='file'
+                  accept='image/*'
+                  disabled={locked}
+                  onChange={(event) =>
+                    setImageFile(event.currentTarget.files?.[0] ?? null)
+                  }
+                />
+                <FieldDescription>
+                  Optional. Choose an image to upload with this ingredient.
+                </FieldDescription>
+                {imageFile && (
+                  <div className='flex items-center justify-between gap-3 text-sm'>
+                    <span className='min-w-0 truncate'>{imageFile.name}</span>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      disabled={locked}
+                      onClick={() => {
+                        setImageFile(null);
+                        if (fileInput.current) fileInput.current.value = '';
+                      }}
+                    >
+                      Remove image
+                    </Button>
+                  </div>
+                )}
+              </Field>
+            )}
             {ingredient?.imageUrl && (
               <Field>
                 <FieldLabel>Existing image (read-only)</FieldLabel>
@@ -191,7 +234,7 @@ export function IngredientForm({
                   className='max-h-48 max-w-48 object-contain'
                 />
                 <FieldDescription>
-                  Image upload is not available.
+                  Images can be uploaded when creating an ingredient.
                 </FieldDescription>
               </Field>
             )}
@@ -243,11 +286,18 @@ export function IngredientForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <IngredientNutrientFields
-            form={form}
-            disabled={locked}
-            id={id}
-          />
+          {ingredient ? (
+            <IngredientNutrientFields
+              form={form}
+              disabled={locked}
+              id={id}
+            />
+          ) : (
+            <p className='text-sm text-muted-foreground'>
+              The create API does not accept nutrient associations yet. Add them
+              after creating the ingredient.
+            </p>
+          )}
         </CardContent>
         <CardFooter className='flex-col items-stretch gap-4'>
           {generalError && (

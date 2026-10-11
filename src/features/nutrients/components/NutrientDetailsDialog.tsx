@@ -51,7 +51,8 @@ export function NutrientDetailsDialog({
         <DialogHeader>
           <DialogTitle>Nutrient details</DialogTitle>
           <DialogDescription>
-            View the nutrient measurement unit and ingredient usage.
+            View the nutrient name, measurement unit, and ingredient usage when
+            available.
           </DialogDescription>
         </DialogHeader>
         {loading ? (
@@ -94,8 +95,12 @@ export function NutrientDetailsDialog({
               <dd>{details.name}</dd>
               <dt>Unit</dt>
               <dd>{details.unit}</dd>
-              <dt>Ingredient usage count</dt>
-              <dd>{details.ingredientCount}</dd>
+              {details.ingredientCountAvailable !== false && (
+                <>
+                  <dt>Ingredient usage count</dt>
+                  <dd>{details.ingredientCount}</dd>
+                </>
+              )}
             </dl>
           )
         )}
