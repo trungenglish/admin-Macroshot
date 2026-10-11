@@ -24,7 +24,6 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { useSidebar } from '@/components/ui/sidebar';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
