@@ -69,30 +69,44 @@ describe('HTTP ingredient transport', () => {
     });
   });
 
-  it('maps create input to the ingredient API wire format', async () => {
-    const request = vi
-      .spyOn(apiClient, 'request')
-      .mockResolvedValue({ data: ingredientDto });
+  it('creates ingredients with multipart form data and unwraps the response envelope', async () => {
+    const file = new File(['image'], 'tomato.jpg', { type: 'image/jpeg' });
+    const request = vi.spyOn(apiClient, 'request').mockResolvedValue({
+      data: {
+        status: 'success',
+        message: 'Ingredient created successfully',
+        data: ingredientDto,
+      },
+    });
 
-    await createHttpIngredientTransport('token').create(input);
+    const created = await createHttpIngredientTransport('token').create({
+      ...input,
+      file,
+    });
 
-    expect(request).toHaveBeenCalledWith({
+    const [config] = request.mock.calls[0];
+    const formData = config.data as FormData;
+    expect(formData).toBeInstanceOf(FormData);
+    expect(Object.fromEntries(formData.entries())).toEqual({
+      name: 'Tomato',
+      cal_per_100g: '18',
+      pro_per_100g: '1',
+      carb_per_100g: '4',
+      fat_per_100g: '0',
+      unit: 'g',
+      is_system: 'true',
+      input_type: '100g',
+      default_weight_per_serving: '100',
+      file,
+    });
+    expect(config).toMatchObject({
       url: '/api/v1/ingredients/',
       method: 'POST',
-      data: {
-        name: 'Tomato',
-        unit: 'g',
-        default_weight_per_serving: '100',
-        cal_per_100g: 18,
-        pro_per_100g: 1,
-        carb_per_100g: 4,
-        fat_per_100g: 0,
-        nutrient_links: [],
-        is_system: true,
-        user_id: null,
-        last_input_type: '100g',
+      headers: {
+        Authorization: 'Bearer token',
+        'Accept-Language': 'vi',
       },
-      headers: { Authorization: 'Bearer token' },
     });
+    expect(created).toMatchObject({ id: 1, name: 'Tomato' });
   });
 });

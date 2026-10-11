@@ -48,6 +48,12 @@ interface NutrientListEnvelopeDto {
   timestamp: string;
 }
 
+interface NutrientDetailEnvelopeDto {
+  status: string;
+  message: string;
+  data: NutrientDto;
+}
+
 export interface ApiError {
   status?: number;
   message: string;
@@ -75,6 +81,17 @@ export function normalizeNutrient(dto: NutrientDto): Nutrient {
     unit: dto.unit,
     isActive: dto.is_active ?? true,
     ingredientCount: dto.ingredient_count ?? 0,
+  };
+}
+
+export function normalizeNutrientDetail(
+  response: NutrientDto | NutrientDetailEnvelopeDto,
+): Nutrient {
+  const dto = 'data' in response ? response.data : response;
+  const nutrient = normalizeNutrient(dto);
+  return {
+    ...nutrient,
+    ingredientCountAvailable: dto.ingredient_count !== undefined,
   };
 }
 
@@ -158,9 +175,8 @@ function toApiError(error: unknown): ApiError {
 const axiosBaseQuery =
   (): BaseQueryFn<AxiosBaseQueryArgs, unknown, ApiError> =>
   async ({ url, method, data, params }, api) => {
-    const token = (
-      api.getState() as { auth: { accessToken: string | null } }
-    ).auth.accessToken;
+    const token = (api.getState() as { auth: { accessToken: string | null } })
+      .auth.accessToken;
     try {
       const response = await apiClient.request({
         url,
@@ -201,7 +217,7 @@ export const nutrientsApi = createApi({
     }),
     getNutrient: builder.query<Nutrient, number>({
       query: (id) => ({ url: `${NUTRIENTS_PATH}${id}`, method: 'GET' }),
-      transformResponse: normalizeNutrient,
+      transformResponse: normalizeNutrientDetail,
       providesTags: (_result, _error, id) => [{ type: 'Nutrient', id }],
     }),
     createNutrient: builder.mutation<Nutrient, NutrientFormValues>({

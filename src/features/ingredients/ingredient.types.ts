@@ -67,4 +67,5 @@ export interface IngredientSaveInput {
   isSystem: true;
   userId: null;
   inputType: '100g';
+  file?: File;
 }

@@ -39,17 +39,20 @@ export interface IngredientTransport {
   delete(id: number): Promise<void>;
 }
 function headers(accessToken: string | null) {
-  return accessToken
-    ? { Authorization: `Bearer ${accessToken}` }
-    : undefined;
+  return accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined;
 }
 
 function normalizeResponse(value: unknown): Ingredient {
-  const metadata =
+  const envelope =
     typeof value === 'object' && value !== null
       ? (value as Record<string, unknown>)
       : {};
-  return normalizeIngredient(value, {
+  const dto = 'data' in envelope ? envelope.data : value;
+  const metadata =
+    typeof dto === 'object' && dto !== null
+      ? (dto as Record<string, unknown>)
+      : {};
+  return normalizeIngredient(dto, {
     nutrientLinks: metadata.nutrient_links,
     recipeCount: metadata.recipe_count,
   });
@@ -72,6 +75,24 @@ function toWireInput(input: IngredientSaveInput) {
     user_id: input.userId,
     last_input_type: input.inputType,
   };
+}
+
+function toCreateFormData(input: IngredientSaveInput): FormData {
+  const formData = new FormData();
+  formData.append('name', input.name);
+  formData.append('cal_per_100g', String(input.calPer100g));
+  formData.append('pro_per_100g', String(input.proPer100g));
+  formData.append('carb_per_100g', String(input.carbPer100g));
+  formData.append('fat_per_100g', String(input.fatPer100g));
+  formData.append('unit', input.unit || 'g');
+  formData.append('is_system', String(input.isSystem));
+  formData.append('input_type', input.inputType);
+  formData.append(
+    'default_weight_per_serving',
+    String(input.defaultWeightPerServing || '100'),
+  );
+  if (input.file) formData.append('file', input.file);
+  return formData;
 }
 
 function toTransportError(error: unknown): IngredientApiError {
@@ -143,8 +164,11 @@ export function createHttpIngredientTransport(
         const response = await apiClient.request({
           url: INGREDIENTS_PATH,
           method: 'POST',
-          data: toWireInput(input),
-          headers: requestHeaders,
+          data: toCreateFormData(input),
+          headers: {
+            ...requestHeaders,
+            'Accept-Language': 'vi',
+          },
         });
         return normalizeResponse(response.data);
       } catch (error) {

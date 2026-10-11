@@ -15,7 +15,7 @@ export const APP_SIDEBAR = {
   primaryNav: [
     { title: 'Dashboard', url: '/admin', Icon: LayoutDashboardIcon },
     { title: 'Users', url: '/admin/users', Icon: UsersIcon },
-    { title: 'Recipes', url: '#', Icon: UtensilsIcon },
+    { title: 'Recipes', url: '/admin/recipes', Icon: UtensilsIcon },
     { title: 'Ingredients', url: '/admin/ingredients', Icon: CarrotIcon },
     { title: 'Nutrients', url: '/admin/nutrients', Icon: TestTubeIcon },
   ],
