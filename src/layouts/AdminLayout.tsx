@@ -9,6 +9,7 @@ import { Header } from '@/layouts/components/Header';
 export function AdminLayout() {
   const accessToken = useAppSelector(selectAccessToken);
   const location = useLocation();
+  const isRecipesPage = location.pathname.startsWith('/admin/recipes');
 
   if (!accessToken)
     return (
@@ -25,9 +26,17 @@ export function AdminLayout() {
     <SidebarProvider>
       <AppSideBar />
       <SidebarInset className='min-w-0'>
-        <Header />
-        <main className='min-w-0 flex-1 overflow-x-hidden p-4 md:p-6 lg:p-8'>
-          <div className='mx-auto w-full max-w-[1600px]'>
+        {!isRecipesPage && <Header />}
+        <main
+          className={`min-w-0 flex-1 overflow-x-hidden ${
+            isRecipesPage ? 'p-[14px] md:px-4 md:py-7' : 'p-4 md:p-6 lg:p-8'
+          }`}
+        >
+          <div
+            className={`mx-auto w-full ${
+              isRecipesPage ? 'max-w-[1250px]' : 'max-w-[1600px]'
+            }`}
+          >
             <Outlet />
           </div>
         </main>

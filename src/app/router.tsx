@@ -44,6 +44,15 @@ export const appRouter = createBrowserRouter([
         },
       },
       {
+        path: 'recipes',
+        lazy: async () => {
+          const { RecipesPage } =
+            await import('@/features/recipes/pages/RecipesPage');
+
+          return { Component: RecipesPage };
+        },
+      },
+      {
         path: 'ingredients',
         lazy: async () => {
           const { IngredientsPage } =

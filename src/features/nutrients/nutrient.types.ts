@@ -9,6 +9,7 @@ export interface Nutrient {
   unit: NutrientUnit;
   isActive: boolean;
   ingredientCount: number;
+  ingredientCountAvailable?: boolean;
 }
 
 export interface NutrientListQuery {
