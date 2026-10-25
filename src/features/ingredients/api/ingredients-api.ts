@@ -6,6 +6,7 @@ import type {
   IngredientListResult,
   IngredientSaveInput,
 } from '../ingredient.types';
+import type { ContentLanguage } from '@/shared/languages/content-language';
 import { normalizeIngredientApiError } from './ingredient-adapter';
 import {
   getIngredientTransport,
@@ -28,8 +29,9 @@ async function withTransport<T>(
 
 function getAccessToken(state: unknown): string | null {
   return (
-    state as { auth?: { accessToken?: string | null } }
-  ).auth?.accessToken ?? null;
+    (state as { auth?: { accessToken?: string | null } }).auth?.accessToken ??
+    null
+  );
 }
 
 // A mutation can remove old links whose ids are not in its response. Invalidate
@@ -77,6 +79,17 @@ export const ingredientsApi = createApi({
           getAccessToken(api.getState()),
         ),
       providesTags: (_result, _error, id) => [{ type: 'Ingredient', id }],
+    }),
+    getIngredientTranslation: builder.query<
+      Ingredient,
+      { id: number; language: ContentLanguage }
+    >({
+      queryFn: ({ id, language }, api) =>
+        withTransport(
+          (transport) => transport.detail(id, language),
+          getAccessToken(api.getState()),
+        ),
+      providesTags: (_result, _error, { id }) => [{ type: 'Ingredient', id }],
     }),
     createIngredient: builder.mutation<Ingredient, IngredientSaveInput>({
       queryFn: (input, api) =>
@@ -127,6 +140,7 @@ export const ingredientsApi = createApi({
 export const {
   useListIngredientsQuery,
   useGetIngredientQuery,
+  useGetIngredientTranslationQuery,
   useCreateIngredientMutation,
   useUpdateIngredientMutation,
   useDeleteIngredientMutation,

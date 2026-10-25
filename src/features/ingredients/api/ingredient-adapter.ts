@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { NUTRIENT_UNITS } from '@/features/nutrients/nutrient.types';
 import type { Ingredient, IngredientNutrientLink } from '../ingredient.types';
 import type { IngredientApiError } from './ingredient-transport';
+import { normalizeContentLanguages } from '@/shared/languages/content-language';
 
 const count = z
   .number()
@@ -25,6 +26,7 @@ const ingredientResponseSchema = z.object({
   pro_per_100g: nonNegativeNumber,
   carb_per_100g: nonNegativeNumber,
   fat_per_100g: nonNegativeNumber,
+  available_languages: z.unknown().optional(),
 });
 const linksSchema = z
   .array(
@@ -101,6 +103,7 @@ export function normalizeIngredient(
   return {
     id: dto.id,
     name: dto.name,
+    availableLanguages: normalizeContentLanguages(dto.available_languages),
     unit: dto.unit,
     userId: dto.user_id,
     isSystem: dto.is_system,

@@ -2,6 +2,8 @@ import { createApi, type BaseQueryFn } from '@reduxjs/toolkit/query/react';
 import axios, { type AxiosRequestConfig } from 'axios';
 
 import { apiClient } from '@/shared/api/api-client';
+import { normalizeContentLanguages } from '@/shared/languages/content-language';
+import type { ContentLanguage } from '@/shared/languages/content-language';
 import type {
   Recipe,
   RecipeIngredient,
@@ -13,6 +15,7 @@ import type {
 interface RecipeDto {
   id: number;
   name: string;
+  available_languages?: unknown;
   brand_name: string | null;
   image_url: string | null;
   is_favorite: boolean;
@@ -61,6 +64,7 @@ interface QueryArgs {
   url: string;
   method: AxiosRequestConfig['method'];
   params?: Record<string, unknown>;
+  language?: ContentLanguage;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -78,6 +82,7 @@ export function normalizeRecipe(dto: RecipeDto): Recipe {
   return {
     id: dto.id,
     name: dto.name,
+    availableLanguages: normalizeContentLanguages(dto.available_languages),
     brandName: dto.brand_name,
     imageUrl: dto.image_url,
     isFavorite: dto.is_favorite,
@@ -136,9 +141,18 @@ export function normalizeRecipeList(response: unknown): RecipeListResult {
   };
 }
 
+export function normalizeRecipeDetail(response: unknown): Recipe {
+  const dto =
+    isRecord(response) && 'data' in response ? response.data : response;
+  if (!isRecord(dto)) {
+    throw new Error('The recipe API returned an unexpected response.');
+  }
+  return normalizeRecipe(dto as RecipeDto);
+}
+
 const axiosBaseQuery =
   (): BaseQueryFn<QueryArgs, unknown, RecipesApiError> =>
-  async ({ url, method, params }, api) => {
+  async ({ url, method, params, language }, api) => {
     const token = (api.getState() as { auth: { accessToken: string | null } })
       .auth.accessToken;
     try {
@@ -149,6 +163,7 @@ const axiosBaseQuery =
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
           'Accept-Language': 'vi',
+          ...(language ? { 'X-Language': language } : {}),
         },
       });
       return { data: response.data };
@@ -187,7 +202,17 @@ export const recipesApi = createApi({
       }),
       transformResponse: normalizeRecipeList,
     }),
+    getRecipe: builder.query<Recipe, { id: number; language: ContentLanguage }>(
+      {
+        query: ({ id, language }) => ({
+          url: `/api/v1/recipes/${id}`,
+          method: 'GET',
+          language,
+        }),
+        transformResponse: normalizeRecipeDetail,
+      },
+    ),
   }),
 });
 
-export const { useListRecipesQuery } = recipesApi;
+export const { useListRecipesQuery, useGetRecipeQuery } = recipesApi;

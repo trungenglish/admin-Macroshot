@@ -1,4 +1,5 @@
 import type { Nutrient } from '@/features/nutrients/nutrient.types';
+import type { ContentLanguage } from '@/shared/languages/content-language';
 
 export interface IngredientNutrientLink {
   nutrient: Nutrient;
@@ -8,6 +9,7 @@ export interface IngredientNutrientLink {
 export interface Ingredient {
   id: number;
   name: string;
+  availableLanguages?: ContentLanguage[];
   unit: string;
   userId: number | null;
   isSystem: boolean;

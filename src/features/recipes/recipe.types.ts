@@ -1,3 +1,5 @@
+import type { ContentLanguage } from '@/shared/languages/content-language';
+
 export interface RecipeIngredient {
   id: number;
   ingredientId: number;
@@ -20,6 +22,7 @@ export interface RecipePortion {
 export interface Recipe {
   id: number;
   name: string;
+  availableLanguages?: ContentLanguage[];
   brandName: string | null;
   imageUrl: string | null;
   isFavorite: boolean;

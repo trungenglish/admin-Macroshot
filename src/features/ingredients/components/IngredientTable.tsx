@@ -7,6 +7,7 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
+import { LanguageCoverage } from '@/shared/components/LanguageCoverage';
 import { Field, FieldLabel } from '@/components/ui/field';
 import {
   Pagination,
@@ -99,6 +100,14 @@ export function IngredientTable({
                     </div>
                   </div>
                   {render('actions')}
+                </div>
+                <div className='flex flex-wrap items-center gap-2 border-b py-3'>
+                  <span className='text-xs text-muted-foreground'>
+                    Translations
+                  </span>
+                  <LanguageCoverage
+                    availableLanguages={row.original.availableLanguages}
+                  />
                 </div>
                 <dl className='grid grid-cols-2 gap-x-4 gap-y-3 pt-3 text-sm'>
                   {[

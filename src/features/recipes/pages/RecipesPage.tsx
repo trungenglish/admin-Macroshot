@@ -14,6 +14,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Input } from '@/components/ui/input';
+import { LanguageCoverage } from '@/shared/components/LanguageCoverage';
 import {
   Pagination,
   PaginationContent,
@@ -329,7 +330,7 @@ export function RecipesPage(): React.JSX.Element {
               </div>
             )}
             <div className='hidden overflow-x-auto xl:block'>
-              <Table className='min-w-[900px]'>
+              <Table className='min-w-[1020px]'>
                 <TableHeader className='bg-muted/40'>
                   <TableRow>
                     {[
@@ -338,6 +339,7 @@ export function RecipesPage(): React.JSX.Element {
                       'Protein',
                       'Carbs',
                       'Fat',
+                      'Translations',
                       'Status',
                       '',
                     ].map((heading, index) => (
@@ -371,6 +373,11 @@ export function RecipesPage(): React.JSX.Element {
                       </TableCell>
                       <TableCell className='px-4 tabular-nums'>
                         {formatNumber.format(recipe.fatPer100g)} g
+                      </TableCell>
+                      <TableCell className='px-4'>
+                        <LanguageCoverage
+                          availableLanguages={recipe.availableLanguages}
+                        />
                       </TableCell>
                       <TableCell className='px-4'>
                         <div className='flex flex-wrap gap-1.5'>
@@ -413,6 +420,14 @@ export function RecipesPage(): React.JSX.Element {
                     <span className='font-medium tabular-nums'>
                       {formatNumber.format(recipe.calPer100g)} kcal
                     </span>
+                    <div className='mt-2 flex flex-wrap items-center gap-2'>
+                      <span className='text-muted-foreground'>
+                        Translations
+                      </span>
+                      <LanguageCoverage
+                        availableLanguages={recipe.availableLanguages}
+                      />
+                    </div>
                   </div>
                 </li>
               ))}
