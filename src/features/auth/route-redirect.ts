@@ -1,4 +1,4 @@
-export const DEFAULT_ADMIN_ROUTE = '/admin/ingredients';
+export const DEFAULT_ADMIN_ROUTE = '/admin';
 
 export function getAdminReturnTo(locationState: unknown): string {
   if (
