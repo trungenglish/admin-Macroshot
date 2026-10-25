@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import { apiClient } from '@/shared/api/api-client';
 import { normalizeIngredient } from './ingredient-adapter';
+import type { ContentLanguage } from '@/shared/languages/content-language';
 import type {
   Ingredient,
   IngredientFormValues,
@@ -33,7 +34,7 @@ export interface IngredientApiError {
 }
 export interface IngredientTransport {
   list(query: IngredientListQuery): Promise<IngredientListResult>;
-  detail(id: number): Promise<Ingredient>;
+  detail(id: number, language?: ContentLanguage): Promise<Ingredient>;
   create(input: IngredientSaveInput): Promise<Ingredient>;
   update(id: number, input: IngredientSaveInput): Promise<Ingredient>;
   delete(id: number): Promise<void>;
@@ -147,12 +148,15 @@ export function createHttpIngredientTransport(
         throw toTransportError(error);
       }
     },
-    async detail(id) {
+    async detail(id, language) {
       try {
         const response = await apiClient.request({
           url: `${INGREDIENTS_PATH}${id}`,
           method: 'GET',
-          headers: requestHeaders,
+          headers: {
+            ...requestHeaders,
+            ...(language ? { 'X-Language': language } : {}),
+          },
         });
         return normalizeResponse(response.data);
       } catch (error) {

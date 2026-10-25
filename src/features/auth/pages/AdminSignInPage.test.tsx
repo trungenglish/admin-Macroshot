@@ -31,12 +31,12 @@ describe('AdminSignInPage', () => {
       [
         { path: '/login', element: <AdminSignInPage /> },
         {
-          path: '/admin/ingredients',
-          element: <h1>Ingredients</h1>,
+          path: '/admin',
+          element: <h1>Dashboard</h1>,
         },
       ],
       {
-      initialEntries: ['/login'],
+        initialEntries: ['/login'],
       },
     );
     const user = userEvent.setup();
@@ -52,7 +52,7 @@ describe('AdminSignInPage', () => {
     await user.click(screen.getByRole('button', { name: 'Sign In' }));
 
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe('/admin/ingredients');
+      expect(router.state.location.pathname).toBe('/admin');
     });
   });
 });

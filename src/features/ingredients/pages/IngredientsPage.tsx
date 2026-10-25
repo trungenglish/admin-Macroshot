@@ -66,7 +66,9 @@ export function IngredientsPage(): React.JSX.Element {
     error,
     refetch,
   } = useListIngredientsQuery(query);
-  const [detailsId, setDetailsId] = useState<number | null>(null);
+  const [detailsIngredient, setDetailsIngredient] = useState<Ingredient | null>(
+    null,
+  );
   const [selectedDelete, setSelectedDelete] = useState<Ingredient | null>(null);
   const [searchDraft, setSearchDraft] = useState<{
     queryValue: string;
@@ -91,7 +93,7 @@ export function IngredientsPage(): React.JSX.Element {
     () =>
       createIngredientColumns({
         onView: (ingredient) => {
-          if (isSystemIngredient(ingredient)) setDetailsId(ingredient.id);
+          if (isSystemIngredient(ingredient)) setDetailsIngredient(ingredient);
         },
         onEdit: (ingredient) => {
           if (isSystemIngredient(ingredient))
@@ -342,8 +344,8 @@ export function IngredientsPage(): React.JSX.Element {
         </CardFooter>
       </Card>
       <IngredientDetailsDialog
-        id={detailsId}
-        onClose={() => setDetailsId(null)}
+        ingredient={detailsIngredient}
+        onClose={() => setDetailsIngredient(null)}
       />
       <DeleteIngredientDialog
         ingredient={deleteIngredient}

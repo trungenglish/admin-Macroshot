@@ -39,6 +39,10 @@ function renderApp(
         element: <AdminLayout />,
         children: [
           {
+            index: true,
+            element: <AdminDestination title='Dashboard' />,
+          },
+          {
             path: 'ingredients',
             element: <AdminDestination title='Ingredients' />,
           },
@@ -93,9 +97,9 @@ describe('admin route protection', () => {
     const router = renderApp('/login');
 
     expect(
-      await screen.findByRole('heading', { name: 'Ingredients' }),
+      await screen.findByRole('heading', { name: 'Dashboard' }),
     ).toBeInTheDocument();
-    expect(router.state.location.pathname).toBe('/admin/ingredients');
+    expect(router.state.location.pathname).toBe('/admin');
   });
 
   it('returns to the originally requested admin route after login', async () => {

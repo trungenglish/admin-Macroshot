@@ -1,5 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
+import { LanguageCoverage } from '@/shared/components/LanguageCoverage';
 import type { Ingredient } from '../ingredient.types';
 import { IngredientRowActions } from './IngredientRowActions';
 import { NutritionValue, RecipeUsage } from './IngredientTableCells';
@@ -75,6 +76,15 @@ export function createIngredientColumns(
           value={row.original.fatPer100g}
           unit='g'
           tone='fat'
+        />
+      ),
+    },
+    {
+      id: 'translations',
+      header: 'Translations',
+      cell: ({ row }) => (
+        <LanguageCoverage
+          availableLanguages={row.original.availableLanguages}
         />
       ),
     },
