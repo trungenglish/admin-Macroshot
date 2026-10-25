@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils';
-import Avatar from 'react-avatar';
 import { NavLink, useMatch } from 'react-router-dom';
 import {
   Sidebar,
@@ -16,10 +15,8 @@ import {
 
 import { useSidebar } from '@/components/ui/sidebar';
 
-import { LogOutIcon } from 'lucide-react';
 import { Logo } from '@/assets/Logo';
 import { APP_SIDEBAR } from '@/layouts/navigation';
-import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/layouts/components/UserMenu';
 import { ThemeToggle } from '@/shared/theme/ThemeToggle';
 
@@ -139,41 +136,7 @@ export const AppSideBar = () => {
           )}
 
           <SidebarMenuItem className={cn(isMobile && 'p-2')}>
-            {isMobile ? (
-              <div className='flex justify-between items-start gap-2'>
-                <div className='grid grid-cols-[max-content_minmax(0,1fr)] items-center gap-2'>
-                  <div className='relative'>
-                    <Avatar
-                      src={APP_SIDEBAR.curProfile.src}
-                      size='36px'
-                      round='8px'
-                    />
-
-                    <div className='absolute bottom-0 right-0 size-2 rounded-full bg-emerald-500 dark:bg-emerald-400 ring-sidebar ring-1'></div>
-                  </div>
-
-                  <div>
-                    <h3 className='text-sm font-semibold'>
-                      {APP_SIDEBAR.curProfile.name}
-                    </h3>
-
-                    <p className='text-xs text-muted-foreground truncate'>
-                      {APP_SIDEBAR.curProfile.email}
-                    </p>
-                  </div>
-                </div>
-
-                <Button
-                  variant='ghost'
-                  size='icon-sm'
-                  aria-label='Logout'
-                >
-                  <LogOutIcon />
-                </Button>
-              </div>
-            ) : (
-              <UserMenu />
-            )}
+            <UserMenu />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
