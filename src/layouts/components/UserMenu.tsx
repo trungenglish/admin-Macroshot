@@ -1,4 +1,5 @@
 import Avatar from 'react-avatar';
+import { useState } from 'react';
 
 import { APP_SIDEBAR } from '@/layouts/navigation';
 import {
@@ -10,14 +11,19 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { PlusIcon, ChevronsUpDownIcon } from 'lucide-react';
+import { PlusIcon, ChevronsUpDownIcon, LanguagesIcon } from 'lucide-react';
 import { SidebarMenuButton } from '@/components/ui/sidebar';
 
 export const UserMenu = () => {
+  const [language, setLanguage] = useState('en');
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -114,6 +120,27 @@ export const UserMenu = () => {
             </Button>
           </DropdownMenuItem>
         </DropdownMenuRadioGroup>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <LanguagesIcon />
+            <span>Language</span>
+            <span className='ml-auto text-xs text-muted-foreground'>
+              {language === 'en' ? 'English' : 'Tiếng Việt'}
+            </span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className='w-44'>
+            <DropdownMenuRadioGroup
+              value={language}
+              onValueChange={setLanguage}
+            >
+              <DropdownMenuRadioItem value='en'>English</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value='vi'>Tiếng Việt</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
 
         <DropdownMenuSeparator />
 
