@@ -14,6 +14,11 @@ import { AdminLayout } from '@/layouts/AdminLayout';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { useAppSelector } from './store-hooks';
 
+vi.mock('@/shared/api/api-client', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/shared/api/api-client')>();
+  return { ...actual, API_BASE_URL: 'https://api.example.test' };
+});
+
 function AdminDestination({ title }: { title: string }) {
   const accessToken = useAppSelector((state) => state.auth.accessToken);
   return (
