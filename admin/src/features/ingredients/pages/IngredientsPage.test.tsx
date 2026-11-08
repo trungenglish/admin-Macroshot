@@ -364,7 +364,9 @@ describe('IngredientsPage', () => {
     await rowAction('Tomatoes', 'View details');
     const dialog = screen.getByRole('dialog');
     expect(
-      await within(dialog).findByText('Authoritative Tomatoes'),
+      await within(dialog).findByRole('heading', {
+        name: 'Authoritative Tomatoes',
+      }),
     ).toBeVisible();
     expect(within(dialog).getByText('0.25 mg / 100g')).toBeVisible();
     expect(within(dialog).getByText('18 kcal / 100g')).toBeVisible();

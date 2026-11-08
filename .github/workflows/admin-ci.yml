@@ -32,20 +32,24 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: admin/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: admin
 
       - name: Code formatting check
         run: pnpm format:check
+        working-directory: admin
         continue-on-error: true
 
       - name: ESLint
         run: pnpm lint || true
+        working-directory: admin
 
       - name: TypeScript type check
         run: pnpm type-check
+        working-directory: admin
 
   security:
     name: Security Check
@@ -65,13 +69,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: admin/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: admin
 
       - name: pnpm audit (HIGH severity)
         run: pnpm audit --audit-level=high
+        working-directory: admin
         continue-on-error: true
 
   test:
@@ -93,13 +99,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: admin/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: admin
 
       - name: Run tests
         run: pnpm test
+        working-directory: admin
 
   build:
     name: Build
@@ -120,13 +128,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: admin/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: admin
 
       - name: Build
         run: pnpm build
+        working-directory: admin
         env:
           NODE_ENV: production
 
@@ -134,3 +144,4 @@ jobs:
         run: |
           echo "Build successful!"
           du -sh dist/ || echo "No dist folder found"
+        working-directory: admin

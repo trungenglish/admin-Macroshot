@@ -313,6 +313,7 @@ export function resetIngredientFixtures(): void {
   ingredients = ingredientNames.map((name, index) => ({
     id: index + 1,
     name,
+    availableLanguages: ['vi'],
     unit: 'g',
     userId: null,
     isSystem: true,

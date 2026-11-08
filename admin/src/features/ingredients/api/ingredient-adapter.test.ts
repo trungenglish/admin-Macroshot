@@ -33,6 +33,7 @@ describe('supplied Ingredient response adapter', () => {
     expect(normalizeIngredient(dto)).toEqual({
       id: 1,
       name: 'Tomato',
+      availableLanguages: [],
       unit: 'g',
       userId: null,
       isSystem: true,

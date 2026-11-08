@@ -126,6 +126,7 @@ describe('nutrient endpoint/store integration', () => {
         unit: 'mg',
         isActive: true,
         ingredientCount: 0,
+        ingredientCountAvailable: true,
       });
       expect(requests).toEqual([
         {

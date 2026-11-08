@@ -7,6 +7,11 @@ import { AppProviders } from '@/app/providers';
 import { AdminSignInPage } from '@/features/auth/pages/AdminSignInPage';
 import { apiClient } from '@/shared/api/api-client';
 
+vi.mock('@/shared/api/api-client', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/shared/api/api-client')>();
+  return { ...actual, API_BASE_URL: 'https://api.example.test' };
+});
+
 describe('AdminSignInPage', () => {
   afterEach(() => {
     localStorage.clear();

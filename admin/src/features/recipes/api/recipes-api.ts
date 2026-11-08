@@ -46,15 +46,6 @@ interface RecipeDto {
   }>;
 }
 
-interface RecipeListEnvelope {
-  status: string;
-  message: string;
-  data: {
-    items: RecipeDto[];
-    meta: { total: number; skip: number; limit: number; count: number };
-  };
-}
-
 export interface RecipesApiError {
   status?: number;
   message: string;
@@ -69,6 +60,57 @@ interface QueryArgs {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
+}
+
+function isNullableString(value: unknown): value is string | null {
+  return value === null || typeof value === 'string';
+}
+
+function isRecipeIngredientDto(
+  value: unknown,
+): value is RecipeDto['recipe_ingredients'][number] {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'number' &&
+    typeof value.ingredient_id === 'number' &&
+    typeof value.name === 'string' &&
+    typeof value.quantity === 'number' &&
+    typeof value.gram_weight === 'number' &&
+    isNullableString(value.image_url) &&
+    typeof value.cal_per_100g === 'number' &&
+    typeof value.pro_per_100g === 'number' &&
+    typeof value.carb_per_100g === 'number' &&
+    typeof value.fat_per_100g === 'number'
+  );
+}
+
+function isRecipeDto(value: unknown): value is RecipeDto {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'number' &&
+    typeof value.name === 'string' &&
+    isNullableString(value.brand_name) &&
+    isNullableString(value.image_url) &&
+    typeof value.is_favorite === 'boolean' &&
+    typeof value.cal_per_100g === 'number' &&
+    typeof value.pro_per_100g === 'number' &&
+    typeof value.carb_per_100g === 'number' &&
+    typeof value.fat_per_100g === 'number' &&
+    typeof value.gram_weight === 'number' &&
+    typeof value.is_system === 'boolean' &&
+    typeof value.is_verified === 'boolean' &&
+    (typeof value.user_id === 'number' || value.user_id === null) &&
+    Array.isArray(value.recipe_ingredients) &&
+    value.recipe_ingredients.every(isRecipeIngredientDto) &&
+    Array.isArray(value.portions) &&
+    value.portions.every(
+      (portion) =>
+        isRecord(portion) &&
+        typeof portion.unit_name === 'string' &&
+        typeof portion.gram_weight === 'number' &&
+        typeof portion.is_default === 'boolean',
+    )
+  );
 }
 
 function getErrorMessage(payload: unknown): string | undefined {
@@ -119,19 +161,20 @@ export function normalizeRecipe(dto: RecipeDto): Recipe {
 }
 
 export function normalizeRecipeList(response: unknown): RecipeListResult {
+  if (!isRecord(response) || !isRecord(response.data)) {
+    throw new Error('The recipes API returned an unexpected response.');
+  }
+  const { items, meta } = response.data;
   if (
-    !isRecord(response) ||
-    !isRecord(response.data) ||
-    !Array.isArray(response.data.items) ||
-    !isRecord(response.data.meta) ||
-    typeof response.data.meta.total !== 'number' ||
-    typeof response.data.meta.skip !== 'number' ||
-    typeof response.data.meta.limit !== 'number'
+    !Array.isArray(items) ||
+    !items.every(isRecipeDto) ||
+    !isRecord(meta) ||
+    typeof meta.total !== 'number' ||
+    typeof meta.skip !== 'number' ||
+    typeof meta.limit !== 'number'
   ) {
     throw new Error('The recipes API returned an unexpected response.');
   }
-  const items = response.data.items as RecipeDto[];
-  const meta = response.data.meta as RecipeListEnvelope['data']['meta'];
   const pageSize = meta.limit > 0 ? meta.limit : 10;
   return {
     items: items.map(normalizeRecipe),
@@ -144,10 +187,10 @@ export function normalizeRecipeList(response: unknown): RecipeListResult {
 export function normalizeRecipeDetail(response: unknown): Recipe {
   const dto =
     isRecord(response) && 'data' in response ? response.data : response;
-  if (!isRecord(dto)) {
+  if (!isRecipeDto(dto)) {
     throw new Error('The recipe API returned an unexpected response.');
   }
-  return normalizeRecipe(dto as RecipeDto);
+  return normalizeRecipe(dto);
 }
 
 const axiosBaseQuery =

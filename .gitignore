@@ -16,6 +16,8 @@ coverage
 *.local
 Thumbs.db
 *.tmp
+.docusaurus
+.vercel
 
 # Editor directories and files
 .vscode/*
